@@ -1,7 +1,5 @@
 require("Required/Locals")
 
-
-
 PlayersTab:add_text("                                                                                                           MNDY Player Options");
 PlayersTab:add_text("                                                                                                                Money/RP Drops");
 
@@ -25,6 +23,23 @@ function drop_function(modelhash, pickupHash, amount,value)
         iconNotification("CHAR_DEFAULT", "CHAR_DEFAULT", true, 8, LuaName, "Dropping For: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()))
     end
 end
+
+function SCEdrop_function(hash, EventHash, value)
+    local SCEHash = hash
+    local Eventnum = EventHash
+    local HowManyThings = value
+    local player_id = network.get_selected_player()
+    network.trigger_script_event(player_id, {SCEHash,player_id,1,Eventnum,100,-3,1,1,1});
+        iconNotification("CHAR_DEFAULT", "CHAR_DEFAULT", true, 8, LuaName, "Player: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .." is Searching")
+end
+
+
+local SCEdropTypes = {
+    ["Buried Stashes"] = {SCEHash = 968269233, Eventnum = 6},
+    ["Treasure Chests"] = {SCEHash = 968269233, Eventnum = 2},
+    ["Circo Loco"] = {SCEHash = 968269233, Eventnum = 4},
+}
+
 
  --PROP_MONEY_PAPERCASE_01 -1803909274
  --PROP_MONEY_PAPERBAG_01 -1666779307
@@ -56,17 +71,73 @@ end
 
 PlayersTab:add_separator();
 PlayersTab:add_text("                                                                                                                     SCE Drops");
+for name, SCEdropInfo in pairs(SCEdropTypes) do
+    local checkbox = PlayersTab:add_checkbox(name)
+    script.register_looped(name, function(script)
+        script:yield()
+        if checkbox:is_enabled() then
+            SCEdrop_function(SCEdropInfo.SCEHash, SCEdropInfo.Eventnum, SCEdropInfo.value)
+            SCEdrop_function(SCEdropInfo.SCEHash, SCEdropInfo.Eventnum, SCEdropInfo.value)
+            SCEdrop_function(SCEdropInfo.SCEHash, SCEdropInfo.Eventnum, SCEdropInfo.value)
+        end
+    end)
+end
 
-BuriedStashes = PlayersTab:add_checkbox("Buried Stashes"); --WIP
-script.register_looped("BuriedStashes", function(script)
-	script:yield();
-	if (BuriedStashes:is_enabled() == true) then
-		local player_id = network.get_selected_player()
-		local targetPlayerId = 1 << player_id;
-		network.trigger_script_event(player_id, {968269233,player_id,1,6,1,-5,1,1,1});
-		script:sleep(wait);
-		network.trigger_script_event(player_id, {968269233,player_id,1,6,2,-5,1,1,1});
-		script:sleep(wait);
-		gui.show_message(LuaName, "Player: " .. PLAYER.GET_PLAYER_NAME(player_id) .. " Found Buried Stashes");
-	end
+
+MenuImGui:add_imgui(function()
+    ImGui.PushItemWidth(190);
+    Watermark_Features = ImGui.Combo("Watermark Names", Watermark_Features, Watermark_Featnames, 3, 15)
+    Watermark, isWaterMarkChanged = ImGui.Checkbox("Watermark", Watermark);
+    script.run_in_fiber(function(script)
+        if isWaterMarkChanged then
+            while Watermark do
+                local localply = PLAYER.PLAYER_ID();
+                local function GetPlayerCount()
+                    return PLAYER.GET_NUMBER_OF_PLAYERS();
+                end
+                for i = 0, 32 do
+                    if (i ~= localPlayerId) then
+                        local player_id = i;
+                        local ply_name = NETWORK.NETWORK_GET_HOST_PLAYER_INDEX(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player_id));
+                        offset = {x=0.6,y=0.001}; 
+                        HUD.SET_TEXT_FONT(0);
+                        HUD.SET_TEXT_SCALE(0.25, 0.25);
+                        HUD.SET_TEXT_CENTRE(false);
+                        HUD.SET_TEXT_DROPSHADOW(2, 2, 0, 0, 0);
+                        HUD.SET_TEXT_EDGE(1, 0, 0, 0, 205);
+                        HUD.BEGIN_TEXT_COMMAND_DISPLAY_TEXT("STRING");
+                        HUD.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME("~ws~"..Watermark_Featnames[Watermark_Features + 1].. " | Welcome: " .. PLAYER.GET_PLAYER_NAME(localply) .. " | Players: " .. GetPlayerCount() .. " | Host: " .. PLAYER.GET_PLAYER_NAME(ply_name) .. " | ScriptHost: " .. ScriptHostName() .. " ");
+                        GRAPHICS.DRAW_RECT(offset.x + 0.187, offset.y, 0.39, 0.049, 0, 0, 0, 125, 0);
+                        HUD.END_TEXT_COMMAND_DISPLAY_TEXT(offset.x, offset.y);
+                        script:sleep(0);
+
+                    end
+                end
+            end
+        end
+        end)
+end)
+MenuImGui:add_separator();
+MenuImGui:add_imgui(function()
+    ImGui.PushItemWidth(190);
+	selected_TransactionMethod = ImGui.Combo("Select Transfer", selected_TransactionMethod, Transaction_names, 2, 15)
+    TransferBank, TransferBankused = ImGui.InputInt("Amount", TransferBank, 1, 2147483646);
+end)
+
+MenuImGui:add_button("Transfer Money", function()
+    script.run_in_fiber(function(script)
+        if selected_TransactionMethod == 0 then
+    gui.show_warning(LuaName, "Transfering $" ..TransferBank.. " To your bank")
+    script:sleep(1000)
+    NETSHOPPING.NET_GAMESERVER_TRANSFER_WALLET_TO_BANK(stats.get_character_index(), TransferBank)
+    log.debug(TransferBank)
+        end
+        if selected_TransactionMethod == 1 then
+            gui.show_warning(LuaName, "Transfering $" ..TransferBank.. " To your wallet")
+            script:sleep(1000)
+            NETSHOPPING.NET_GAMESERVER_TRANSFER_BANK_TO_WALLET(stats.get_character_index(), TransferBank)
+            log.debug(TransferBank)
+         end
+    end)
 end);
+MenuImGui:add_sameline()
