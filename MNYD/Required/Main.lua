@@ -141,3 +141,25 @@ MenuImGui:add_button("Transfer Money", function()
     end)
 end);
 MenuImGui:add_sameline()
+
+recoveryTab:add_text("                                                 MNYD Quick Cash (ONLY YOU ARE RESPONSABLE FOR USING THESE OPTIONS!)");
+local MNYDMoney = {
+	["5k Chips"] = { globalnum = 1963515, Num2 = 1, ConsoleDisplay = "Given 5K Chips"},
+    ["5Ok"] = {hash = joaat(FIFTYKJoaats[math.random(#FIFTYKJoaats)]), value = 50000, ConsoleDisplay = FIFTYKJoaats[math.random(#FIFTYKJoaats)]},
+    ["250k"] = {hash = joaat(twohundredkJoaats[math.random(#twohundredkJoaats)]), value = 250000, ConsoleDisplay = twohundredkJoaats[math.random(#twohundredkJoaats)]},
+    ["1m (Hash)"] = {hash = joaat(onemhash1), value = 1000000, ConsoleDisplay = onemhash1},
+    ["1m (Global)"] = {hash = 1633116913, value = 1000000, ConsoleDisplay = 1633116913},
+}
+for name, MNYDmonInfo in pairs(MNYDMoney) do
+    local checkbox = recoveryTab:add_checkbox(name)
+    recoveryTab:add_sameline()
+    script.register_looped(name, function(script)
+        script:yield()
+        if checkbox:is_enabled() then
+            MNYDJJDU837KLSLLMNMNKUIEU8U14(MNYDmonInfo.hash, MNYDmonInfo.value)
+            GlobalInt(MNYDmonInfo.globalnum, MNYDmonInfo.Num2)
+            log.debug("Current Joaat: " ..name.." " ..MNYDmonInfo.ConsoleDisplay.. " ")
+            script:sleep(MNYDQuckCashTime)
+    end
+    end)
+end
