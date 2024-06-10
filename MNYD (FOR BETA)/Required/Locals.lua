@@ -24,6 +24,7 @@ StatisticsMNDY = gui.get_tab("MNDY Stats Editor")
 recoveryTab2 = gui.get_tab("MNDY Recovery")
 NightClubMNDY = gui.get_tab("MNDY NightClub")
 MenuImGui = gui.get_tab("MNDY Misc")
+AllPlayers = gui.get_tab("MNDY All Players")
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -60,6 +61,24 @@ function MNYDJJDU837KLSLLMNMNKUIEU8U14(hash, amount)
 	GlobalInt(MNYDMNYYDWWJ8WE8 + 3, hash);
 	GlobalInt(MNYDMNYYDWWJ8WE8 + 2, amount);
 	GlobalInt(MNYDMNYYDWWJ8WE8, 2);
+end
+
+function CreateWorldObject(hash, xcoord, ycoord, zcoord)
+        OBJECT.CREATE_OBJECT(hash, xcoord, ycoord, zcoord, true, false, false)
+        OBJECT.BREAK_OBJECT_FRAGMENT_CHILD(hash, 1, false)
+end
+
+function DeleteEntity(Entity)
+    if ENTITY.DOES_ENTITY_EXIST(Entity) then
+        ENTITY.DETACH_ENTITY(Entity, true, true)
+        ENTITY.SET_ENTITY_VISIBLE(Entity, false, false)
+        NETWORK.NETWORK_SET_ENTITY_ONLY_EXISTS_FOR_PARTICIPANTS(Entity, true)
+        ENTITY.SET_ENTITY_COORDS_NO_OFFSET(Entity, 0.0, 0.0, -1000.0, false, false, false)
+        ENTITY.SET_ENTITY_COLLISION(Entity, false, false)
+        ENTITY.SET_ENTITY_AS_MISSION_ENTITY(Entity, true, true)
+        ENTITY.SET_ENTITY_AS_NO_LONGER_NEEDED(Entity)
+        ENTITY.DELETE_ENTITY(Entity)
+    end
 end
 
 FIFTYKJoaats = {

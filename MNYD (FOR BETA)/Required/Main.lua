@@ -4,6 +4,7 @@ PlayersTab:add_text("                                                           
 PlayersTab:add_text("                                                                                                                Money/RP Drops");
 
 function drop_function(modelhash, pickupHash, amount,value)
+    script.run_in_fiber(function(script)
     local model = modelhash
     local pickup = pickupHash
     local money_value = value
@@ -22,6 +23,7 @@ function drop_function(modelhash, pickupHash, amount,value)
         end
         iconNotification("CHAR_DEFAULT", "CHAR_DEFAULT", true, 8, LuaName, "Dropping For: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()))
     end
+end)
 end
 
 function SCEdrop_function(hash, EventHash, value)
@@ -33,13 +35,11 @@ function SCEdrop_function(hash, EventHash, value)
         iconNotification("CHAR_DEFAULT", "CHAR_DEFAULT", true, 8, LuaName, "Player: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .." is Searching")
 end
 
-
 local SCEdropTypes = {
     ["Buried Stashes"] = {SCEHash = 968269233, Eventnum = 6},
     ["Treasure Chests"] = {SCEHash = 968269233, Eventnum = 2},
     ["Circo Loco"] = {SCEHash = 968269233, Eventnum = 4},
 }
-
 
  --PROP_MONEY_PAPERCASE_01 -1803909274
  --PROP_MONEY_PAPERBAG_01 -1666779307
@@ -82,6 +82,90 @@ for name, SCEdropInfo in pairs(SCEdropTypes) do
         end
     end)
 end
+
+
+PlayersTab:add_separator();
+PlayersTab:add_text("                                                                                                                  Toxic/Griefing");
+PlayersTab:add_button("Fragment Crash", function()
+    script.run_in_fiber(function(script)
+        local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(network.get_selected_player()), false)
+		gui.show_message(LuaName, "Attempting to Crash: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. " ");
+        hash1 = joaat("prop_fragtest_cnst_04")
+        hash2 = joaat("prop_fragtest_cnst_02")
+        hash3 = joaat("prop_fragtest_cnst_08")
+            local object = CreateWorldObject(hash1, coords.x, coords.y, coords.z)
+            DeleteEntity(object)
+            local object2 = CreateWorldObject(hash2, coords.x, coords.y, coords.z)
+            DeleteEntity(object2)
+            local object3 = CreateWorldObject(hash2, coords.x, coords.y, coords.z)
+            DeleteEntity(object3)
+            local object4 = CreateWorldObject(hash1, coords.x, coords.y, coords.z)
+            DeleteEntity(object4)
+            local object5 = CreateWorldObject(hash2, coords.x, coords.y, coords.z)
+            DeleteEntity(object5)
+            local object6 = CreateWorldObject(hash2, coords.x, coords.y, coords.z)
+            DeleteEntity(object6)
+    log.warning("You attempted to crash: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. " ");
+end)
+end);
+
+
+local checkbox = AllPlayers:add_checkbox("Explode All (Anonymous)")
+script.register_looped("Explode All", function(script)
+    script:yield()
+    if checkbox:is_enabled() then
+        gui.show_message(LuaName, "Exploding All Players Repeatedly");
+        for i = 0, 32 do
+            if (i ~= localPlayerId) then
+                local player_id = i;
+                local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player_id), true);
+                FIRE.ADD_EXPLOSION(coords.x, coords.y, coords.z, explosionType, 100000, true, false, 0, false);
+                GRAPHICS.USE_PARTICLE_FX_ASSET(explosionFx);
+                GRAPHICS.START_PARTICLE_FX_NON_LOOPED_AT_COORD("explosion_barrel", coords.x, coords.y, coords.z, 0, 0, 0, 1, false, true, false);
+                script:sleep(1);
+            end
+    end
+end
+end)
+
+local checkbox = AllPlayers:add_checkbox("Ragdoll All")
+script.register_looped("Ragdoll All", function(script)
+    script:yield()
+    if checkbox:is_enabled() then
+        gui.show_message(LuaName, "Ragdolled all players");
+        for i = 0, 32 do
+            if (i ~= localPlayerId) then
+                local player_id = i;
+                local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player_id), true);
+                coords.z = coords.z - 2;
+                FIRE.ADD_EXPLOSION(coords.x, coords.y, coords.z, 11, 1, false, true, 100, false);
+                script:sleep(1);
+            end
+    end
+end
+end)
+
+AllPlayers:add_text("                                                                                                                  Teleports");
+AllPlayers:add_button("Comedy Room", function()
+        network.set_all_player_coords(380.585, -1000.17566, -99.000015, true);
+        ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()), 380.585, -1000.17566, -99.000015, false, false, true, true);
+end);
+AllPlayers:add_sameline();
+AllPlayers:add_button("Mugshot Room", function()
+        network.set_all_player_coords(399.26633, -1004.46765, -99.00412, true);
+        ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()), 399.26633, -1004.46765, -99.00412, false, false, true, true);
+end);
+AllPlayers:add_sameline();
+AllPlayers:add_button("Jail Cell", function()
+        network.set_all_player_coords(459.72223, -994.1862, 24.914667, true);
+        ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()), 459.72223, -994.1862, 24.914667, false, false, true, true);
+end);
+AllPlayers:add_sameline();
+AllPlayers:add_button("Mount Chiliad", function()
+        network.set_all_player_coords(501.403, 5598.647, 796.137, true);
+        ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()), 501.403, 5598.647, 796.137, false, false, true, true);
+end);
+
 MenuImGui:add_imgui(function()
     ImGui.PushItemWidth(190);
     Watermark_Features = ImGui.Combo("Watermark Names", Watermark_Features, Watermark_Featnames, Watermark_FeatnamesAmmount, 15)
