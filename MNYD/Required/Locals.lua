@@ -1,6 +1,7 @@
 Yourself = PLAYER.PLAYER_ID();
 Yourselfpedid = PLAYER.PLAYER_PED_ID()
 YourselfPED = PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID());
+TargetID = network.get_selected_player()
 RPDropTime = 400;
 MoneyDropTime = 800;
 SCEWait = 800;
@@ -8,22 +9,36 @@ MNYDQuckCashTime = 800;
 TransferBank2 = false
 TransferBank = 0
 Transaction_names = {"Bank","Wallet"}
+Computer_names = {"Bank","Wallet"}
 selected_TransactionMethod = 0
+selected_Computer = 0
 isWaterMarkChanged = false
 Watermark = false
 Watermark_Featnames = {"MNYD","NewWayMenu.vip","NewWay"}
+Watermark_FeatnamesAmmount = 3
 Watermark_Features = 0
-
-
 LuaName = "MNDY"
 gui.show_message("NewWay", LuaName.." Loaded")
-PlayersTab = gui.get_tab("ICON_FA_PLAYER");
-recoveryTab = gui.get_tab("ICON_FA_RECOVERY")
-MenuImGui = gui.get_tab("GUI_TAB_LUA_SCRIPTS")
+PlayersTab = gui.get_tab("GUI_TAB_PLAYER");
+StatisticsMNDY = gui.get_tab("MNDY Stats Editor")
+recoveryTab2 = gui.get_tab("MNDY Recovery")
+NightClubMNDY = gui.get_tab("MNDY NightClub")
+MenuImGui = gui.get_tab("MNDY Misc")
+AllPlayers = gui.get_tab("MNDY All Players")
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 function iconNotification(icon, icon, flash, icon2, text1, text)
 	HUD.BEGIN_TEXT_COMMAND_THEFEED_POST(" ");
 	HUD.END_TEXT_COMMAND_THEFEED_POST_MESSAGETEXT(icon, icon, false, icon2, text1, text);
+end
+
+MPX = PI;
+PI = stats.get_int("MPPLY_LAST_MP_CHAR");
+if (PI == 0) then
+	MPX = "MP0_";
+else
+	MPX = "MP1_";
 end
 
 function ScriptHostName()
@@ -33,17 +48,6 @@ end
 function GlobalInt(address, value)
 	globals.set_int(address, value);
 end
-
-
-
-
-
-
-
-
-
-
-
 
 
 ---QuickCash
@@ -57,6 +61,24 @@ function MNYDJJDU837KLSLLMNMNKUIEU8U14(hash, amount)
 	GlobalInt(MNYDMNYYDWWJ8WE8 + 3, hash);
 	GlobalInt(MNYDMNYYDWWJ8WE8 + 2, amount);
 	GlobalInt(MNYDMNYYDWWJ8WE8, 2);
+end
+
+function CreateWorldObject(hash, xcoord, ycoord, zcoord)
+        OBJECT.CREATE_OBJECT(hash, xcoord, ycoord, zcoord, true, false, false)
+        OBJECT.BREAK_OBJECT_FRAGMENT_CHILD(hash, 1, false)
+end
+
+function DeleteEntity(Entity)
+    if ENTITY.DOES_ENTITY_EXIST(Entity) then
+        ENTITY.DETACH_ENTITY(Entity, true, true)
+        ENTITY.SET_ENTITY_VISIBLE(Entity, false, false)
+        NETWORK.NETWORK_SET_ENTITY_ONLY_EXISTS_FOR_PARTICIPANTS(Entity, true)
+        ENTITY.SET_ENTITY_COORDS_NO_OFFSET(Entity, 0.0, 0.0, -1000.0, false, false, false)
+        ENTITY.SET_ENTITY_COLLISION(Entity, false, false)
+        ENTITY.SET_ENTITY_AS_MISSION_ENTITY(Entity, true, true)
+        ENTITY.SET_ENTITY_AS_NO_LONGER_NEEDED(Entity)
+        ENTITY.DELETE_ENTITY(Entity)
+    end
 end
 
 FIFTYKJoaats = {
