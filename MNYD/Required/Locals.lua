@@ -9,7 +9,6 @@ MNYDQuckCashTime = 800;
 TransferBank2 = false
 TransferBank = 0
 Transaction_names = {"Bank","Wallet"}
-Computer_names = {"Bank","Wallet"}
 selected_TransactionMethod = 0
 selected_Computer = 0
 isWaterMarkChanged = false
@@ -17,6 +16,7 @@ Watermark = false
 Watermark_Featnames = {"MNYD","NewWayMenu.vip","NewWay"}
 Watermark_FeatnamesAmmount = 3
 Watermark_Features = 0
+ShowAtAllTimes = false
 LuaName = "MNDY"
 gui.show_message("NewWay", LuaName.." Loaded")
 PlayersTab = gui.get_tab("GUI_TAB_PLAYER");
@@ -49,6 +49,9 @@ function GlobalInt(address, value)
 	globals.set_int(address, value);
 end
 
+function GetPlayerCount()
+    return PLAYER.GET_NUMBER_OF_PLAYERS();
+end
 
 ---QuickCash
 local MNYDMNYYDWWJ8WE8 = 4537212;
@@ -79,6 +82,23 @@ function DeleteEntity(Entity)
         ENTITY.SET_ENTITY_AS_NO_LONGER_NEEDED(Entity)
         ENTITY.DELETE_ENTITY(Entity)
     end
+end
+
+function ForceControl(entity)
+    return entities.take_control_of(entity)
+end
+
+function DrawText(I, x, y, scale1, scale2)
+    HUD.SET_TEXT_FONT(0)
+    HUD.SET_TEXT_PROPORTIONAL(1)
+    HUD.SET_TEXT_SCALE(scale1, scale2)
+    HUD.SET_TEXT_DROPSHADOW(1, 0, 0, 0, 255)
+    HUD.SET_TEXT_EDGE(1, 0, 0, 0, 255)
+    HUD.SET_TEXT_DROP_SHADOW()
+    HUD.SET_TEXT_OUTLINE()
+    HUD.BEGIN_TEXT_COMMAND_DISPLAY_TEXT('STRING')
+    HUD.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(I)
+    HUD.END_TEXT_COMMAND_DISPLAY_TEXT(x, y)
 end
 
 FIFTYKJoaats = {

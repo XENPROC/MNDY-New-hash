@@ -291,9 +291,6 @@ MenuImGui:add_imgui(function()
         if isWaterMarkChanged then
             while Watermark do
                 local localply = PLAYER.PLAYER_ID();
-                local function GetPlayerCount()
-                    return PLAYER.GET_NUMBER_OF_PLAYERS();
-                end
                 for i = 0, 32 do
                     if (i ~= localPlayerId) then
                         local player_id = i;
@@ -358,6 +355,95 @@ MenuImGui:add_button("Unlimited Chip Purchase", function()
     STATS.STAT_SET_INT(joaat("MPPLY_CASINO_CHIPS_PUR_GD"), -100000000000000, true);
     gui.show_message(LuaName, "Purchase as many chips as you would like");
 end);
+MenuImGui:add_button("Unlock All Achivements", function()
+    script.run_in_fiber(function(script)
+        for i = 0, 77 do
+            PLAYER.GIVE_ACHIEVEMENT_TO_PLAYER(i);
+        gui.show_warning(LuaName, "Unlocking All Achivements")
+        end
+    end)
+end);
+MenuImGui:add_separator();
+MenuImGui:add_text("Crosshair");
+MenuImGui:add_sameline();
+ Showatall = MenuImGui:add_checkbox("Show at all times")
+ MenuImGui:add_sameline();
+ local checkbox = MenuImGui:add_checkbox("Hide Dot")
+script.register_looped("Hide Dot", function(script)
+    if checkbox:is_enabled() then
+        HUD.HIDE_HUD_COMPONENT_THIS_FRAME(14)
+end
+end)
+MenuImGui:add_separator();
+
+
+
+local checkbox = MenuImGui:add_checkbox("Crosshair (+)")
+script.register_looped("Crosshair", function(script)
+    if checkbox:is_enabled() then
+        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
+        DrawText('+', 0.4960, 0.481, 0.0, 0.4)
+        elseif Showatall:is_enabled() then
+            DrawText('+', 0.4960, 0.481, 0.0, 0.4)
+    end
+end
+end)
+MenuImGui:add_sameline();
+local checkbox = MenuImGui:add_checkbox("Crosshair (Square)")
+script.register_looped("Crosshair2", function(script)
+    if checkbox:is_enabled() then
+        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
+            DrawText('☐', 0.4972, 0.491, 0.2, 0.2)
+        elseif Showatall:is_enabled() then
+            DrawText('☐', 0.4972, 0.491, 0.2, 0.2)
+    end
+end
+end)
+local checkbox = MenuImGui:add_checkbox("Crosshair ({ })")
+script.register_looped("Crosshair3", function(script)
+    if checkbox:is_enabled() then
+        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
+            DrawText("{ }", 0.4964, 0.491, 0.2, 0.2)
+        elseif Showatall:is_enabled() then
+            DrawText('{ }', 0.4964, 0.491, 0.2, 0.2)
+    end
+end
+end)
+MenuImGui:add_sameline();
+local checkbox = MenuImGui:add_checkbox("Crosshair (O)")
+script.register_looped("CrosshairO", function(script)
+    if checkbox:is_enabled() then
+        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
+            DrawText("O", 0.4964, 0.491, 0.2, 0.2)
+        elseif Showatall:is_enabled() then
+            DrawText('O', 0.4964, 0.491, 0.2, 0.2)
+    end
+end
+end)
+
+local checkbox = MenuImGui:add_checkbox("Weapon Controller (AIM AT ENTITY!)")
+script.register_looped("Weapon Info", function(script)
+    if checkbox:is_enabled() then
+        local IsFound, Object = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER.PLAYER_ID())
+        entityCoord = ENTITY.GET_ENTITY_COORDS(Object, false)
+        if IsFound then
+        GRAPHICS.DRAW_MARKER_SPHERE(entityCoord.x, entityCoord.y, entityCoord.z, 1, 0, 255, 0, 0.3)
+        DrawText("Aiming At: "..ENTITY.GET_ENTITY_MODEL(Object), 0.4738, 0.505, 0.2, 0.2)
+        DrawText("Press E to delete", 0.4798, 0.517, 0.2, 0.2)
+        DrawText("Press Q to Fling", 0.4798, 0.529, 0.2, 0.2)
+        DrawText("X:  "..entityCoord.x.. " Y:  " ..entityCoord.y.. "Z:  "..entityCoord.z.. " ", 0.4200, 0.539, 0.2, 0.2)
+        if PAD.IS_CONTROL_JUST_PRESSED(0, 38) then
+            DeleteEntity(Object)
+        end
+        if PAD.IS_CONTROL_JUST_PRESSED(0, 52) then
+            ForceControl(Object);
+            ENTITY.SET_ENTITY_VELOCITY(Object, math.random(-180, 180), math.random(-180, 180), math.random(-180, 180));
+        end
+      end
+    end
+end)
+
+
 NightClubMNDY:add_button("Refill Nightclub Popularity", function()
     script.run_in_fiber(function(script)
         STATS.STAT_SET_INT(joaat(MPX .. "CLUB_POPULARITY"), 1000, true);
