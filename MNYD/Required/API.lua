@@ -99,18 +99,6 @@ else
 	MPX = "MP1_";
 end
 
---==Quick Cash==--
-local MNYDMNYYDWWJ8WE8 = 4537212;
-function MNYDJJDU837KLSLLMNMNKUIEU8U14(hash, amount)
-	globals.set_int(262145 + 34328 + 5, -22923932);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 1, 2147483646);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 7, 2147483647);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 6, 0);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 5, 0);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 3, hash);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 2, amount);
-	GlobalInt(MNYDMNYYDWWJ8WE8, 2);
-end
 
 local textureDictTextures = {
     mpweaponscommon = {
@@ -453,27 +441,3 @@ function GetTint(ped,hash)
         return "Unkown"
     end
 end
-
-
-FIFTYKJoaats = {
-    "SERVICE_EARN_FROM_CONTRABAND",
-    "SERVICE_EARN_GOON",
-    "SERVICE_EARN_TAXI_JOB",
-    "SERVICE_EARN_CASINO_AWARD_MISSION_FIVE_FIRST_TIME",
-    "SERVICE_EARN_TUNER_CAR_CLUB_MEMBERSHIP",
-    "SERVICE_EARN_AMBIENT_JOB_HOT_TARGET_KILL",
-    "SERVICE_EARN_AMBIENT_JOB_SHOP_ROBBERY",
-    "SERVICE_EARN_ARENA_WAR",
-    "SERVICE_EARN_AMBIENT_JOB_HELI_HOT_TARGET",
-    "SERVICE_EARN_CASINO_AWARD_LUCKY_LUCKY"
- }
- 
- twohundredkJoaats = {
-     "SERVICE_EARN_CASINO_HEIST_AWARD_PROFESSIONAL",
- 
-  }
- 
-  onemhash1 = "SERVICE_EARN_DAILY_OBJECTIVES"
- 
- 
- 

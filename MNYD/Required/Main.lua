@@ -1,4 +1,4 @@
-
+DebugInfo = true
 require("Required/Functions")
 require("Required/API")
 
@@ -444,6 +444,8 @@ script.register_looped("IngameHud", function(script)
     draw_weapon_info()
 end)
 MenuImGui:add_separator();
+MenuImGui:add_sameline();
+MenuImGui:add_separator();
 MenuImGui:add_imgui(function()
     ImGui.PushItemWidth(190);
     selected_TransactionMethod = ImGui.Combo("Select Transfer", selected_TransactionMethod, Transaction_names, 2, 15)
@@ -597,9 +599,6 @@ script.register_looped("CrosshairO", function(script)
     end
 end)
 
-
-
-
 local checkbox = MenuImGui:add_checkbox("Weapon Controller (AIM AT ENTITY!)")
 script.register_looped("WeaponController", function(script)
     if checkbox:is_enabled() then
@@ -640,47 +639,31 @@ script.register_looped("Auto Refill Safe (5s)", function(script)
     end
 end)
 
-
-recoveryTab2:add_text("MNYD Quick Cash (ONLY YOU ARE RESPONSABLE FOR USING THESE OPTIONS!)");
+recoveryTab2:add_text("ONLY YOU ARE RESPONSABLE FOR USING THESE OPTIONS!");
 local MNYDMoney = {
-    ["5k Chips"] = { globalnum = 1963515, Num2 = 1, ConsoleDisplay = "Given 5K Chips" },
-    ["5Ok"] = { hash = joaat(FIFTYKJoaats[math.random(#FIFTYKJoaats)]), value = 50000, ConsoleDisplay = FIFTYKJoaats[math.random(#FIFTYKJoaats)] },
-    ["250k"] = { hash = joaat(twohundredkJoaats[math.random(#twohundredkJoaats)]), value = 250000, ConsoleDisplay = twohundredkJoaats[math.random(#twohundredkJoaats)] },
-    ["1m (Hash)"] = { hash = joaat(onemhash1), value = 1000000, ConsoleDisplay = onemhash1 },
-    ["1m (Global)"] = { hash = 1633116913, value = 1000000, ConsoleDisplay = 1633116913 },
+    ["5k Chips"] = { globalnum = 1964419, Num2 = 1, ConsoleDisplay = "Given 5K Chips" },
+    ["50k"] = { hash = 1628412596, value = 50000, ConsoleDisplay = "SERVICE_EARN_YOHAN_SOURCE_GOODS" },
+ 
 }
+
 for name, MNYDmonInfo in pairs(MNYDMoney) do
     local checkbox = recoveryTab2:add_checkbox(name)
     script.register_looped(name, function(script)
         script:yield()
         if checkbox:is_enabled() then
-            MNYDJJDU837KLSLLMNMNKUIEU8U14(MNYDmonInfo.hash, MNYDmonInfo.value)
+            MoneyTransactions(MNYDmonInfo.hash, MNYDmonInfo.value)
             GlobalInt(MNYDmonInfo.globalnum, MNYDmonInfo.Num2)
             log.debug("Current Joaat: " .. name .. " " .. MNYDmonInfo.ConsoleDisplay .. " ")
             script:sleep(MNYDQuckCashTime)
         end
     end)
 end
-
 recoveryTab2:add_imgui(function()
     if ImGui.BeginChildFrame(80, 250, 80, ImGuiWindowFlags.NoBackground) then
         ImGui.SameLine((80) - (10));
         ImGui.TextColored(1, 0, 0, 1, "Riskier Options");
         if ImGui.Button("15 Million") then
-            MNYDJJDU837KLSLLMNMNKUIEU8U14(joaat("SERVICE_EARN_JOB_BONUS"), 15000000)
-        end
-        ImGui.SameLine();
-        if ImGui.Button("25 Million") then
-            MNYDJJDU837KLSLLMNMNKUIEU8U14(joaat("SERVICE_EARN_GANGOPS_AWARD_MASTERMIND_4"), 15000000)
-            MNYDJJDU837KLSLLMNMNKUIEU8U14(joaat("SERVICE_EARN_JUGGALO_STORY_MISSION"), 10000000)
-        end
-        ImGui.SameLine();
-        if ImGui.Button("40 Million") then
-            MNYDJJDU837KLSLLMNMNKUIEU8U14(joaat("SERVICE_EARN_BEND_JOB"), 15000000)
-            MNYDJJDU837KLSLLMNMNKUIEU8U14(joaat("SERVICE_EARN_GANGOPS_AWARD_MASTERMIND_3"), 7000000)
-            MNYDJJDU837KLSLLMNMNKUIEU8U14(joaat("SERVICE_EARN_GANGOPS_AWARD_MASTERMIND_4"), 15000000)
-            MNYDJJDU837KLSLLMNMNKUIEU8U14(joaat("SERVICE_EARN_FROM_BUSINESS_HUB_SELL"), 2000000)
-            MNYDJJDU837KLSLLMNMNKUIEU8U14(joaat("SERVICE_EARN_DAILY_OBJECTIVE_EVENT"), 1000000)
+            MoneyTransactions(joaat("SERVICE_EARN_JOB_BONUS"), 15000000)
         end
         ImGui.EndChildFrame();
     end
@@ -688,3 +671,49 @@ end)
 
 
 StatisticsMNDY:add_text("Coming Soon");
+
+script.register_looped("tick", function(script)
+if DebugInfo then
+    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ MNDY Version: 1.69", 0.28, 0.00, 0.0, 0.2000)
+    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 27/06/24", 0.28, 0.012, 0.0, 0.2000)
+end
+    end)
+
+
+
+
+--======================================================================-
+--===============================Functions==============================-
+--======================================================================-
+MNYDMNYYDWWJ8WE8 = 4537311;
+function MoneyTransactions(hash, amount)
+	globals.set_int(262145 + 34328 + 5, -22923932);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 1, 2147483646);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 7, 2147483647);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 6, 0);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 5, 0);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 3, hash);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 2, amount);
+	GlobalInt(MNYDMNYYDWWJ8WE8, 2);
+end
+
+function ShootAt()
+    local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
+    local weapHash = 177293209
+    local pedcoords = ENTITY.GET_ENTITY_COORDS(player_id, false)
+    MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS_IGNORE_ENTITY(pedcoords.x, pedcoords.y, pedcoords.z + 5.5, pedcoords.x, pedcoords.y, pedcoords.z+0.1, 1000, true, weapHash, YourselfPED, true, true, -1, player_id, true)
+end
+
+function DropVehicleOnPlayer(name)
+    script.run_in_fiber(function(script)
+    local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
+    local pedcoords = ENTITY.GET_ENTITY_COORDS(player_id, false)
+    local hash = joaat(name)
+    STREAMING.REQUEST_MODEL(hash);
+    while not STREAMING.HAS_MODEL_LOADED(hash) do script:yield(); end
+    local vehicleCreate = VEHICLE.CREATE_VEHICLE(hash, pedcoords.x, pedcoords.y, pedcoords.z + 4, 0, true, true, false)
+    STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(vehicleCreate)
+    script:sleep(1700);
+    DeleteVehicle(vehicleCreate)
+    end)
+end
