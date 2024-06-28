@@ -1,8 +1,26 @@
 DebugInfo = true
-require("Required/Functions")
 require("Required/API")
 
 PlayersTab:add_text("Money/RP Drops");
+
+MPX = PI;
+PI = stats.get_int("MPPLY_LAST_MP_CHAR");
+if (PI == 0) then
+	MPX = "MP0_";
+else
+	MPX = "MP1_";
+end
+
+function run_script(name, Bit)
+	script.run_in_fiber(function(runscript)
+		SCRIPT.REQUEST_SCRIPT(name);
+		repeat
+			runscript:yield();
+		until SCRIPT.HAS_SCRIPT_LOADED(name) 
+		SYSTEM.START_NEW_SCRIPT(name, Bit);
+		SCRIPT.SET_SCRIPT_AS_NO_LONGER_NEEDED(name);
+	end);
+end
 
 function drop_function(modelhash, pickupHash, amount, value)
     script.run_in_fiber(function(script)
@@ -539,8 +557,28 @@ MenuImGui:add_button("Remove Bad Sport", function()
         globals.set_int(1574589, 0) 
 end)
 end);
+MenuImGui:add_button("Give 9999x Snacks", function()
+    script.run_in_fiber(function(script)
+        gui.show_message(LuaName, "Snacks given");
+        STATS.STAT_SET_INT(joaat(MPX .. "NO_BOUGHT_YUM_SNACKS"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX .. "NO_BOUGHT_HEALTH_SNACKS"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX .. "NO_BOUGHT_EPIC_SNACKS"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_CHAMP_BOUGHT"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_ORANGE_BOUGHT"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_BOURGE_BOUGHT"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_SPRUNK_BOUGHT"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX .. "CIGARETTES_BOUGHT"), 9999, true);
+end)
+end);
 
-
+MenuImGui:add_separator();
+MenuImGui:add_text("Computers");
+MenuImGui:add_separator();
+MenuImGui:add_button("Bail Office", function()
+    script.run_in_fiber(function (script)
+        run_script("appBailOffice", 4592)
+    end)
+end)
 MenuImGui:add_separator();
 MenuImGui:add_text("Crosshair");
 MenuImGui:add_sameline();
@@ -717,3 +755,12 @@ function DropVehicleOnPlayer(name)
     DeleteVehicle(vehicleCreate)
     end)
 end
+
+
+------=========================================================================------
+------===============================Credits===================================------
+------=========================================================================------
+
+-- GSTX (gustavin)
+-- Recoil
+-- Gir489returns ( For bit sizes on computers)

@@ -91,13 +91,6 @@ function iconNotification(icon, icon, flash, icon2, text1, text)
 	HUD.END_TEXT_COMMAND_THEFEED_POST_MESSAGETEXT(icon, icon, false, icon2, text1, text);
 end
 
-MPX = PI;
-PI = stats.get_int("MPPLY_LAST_MP_CHAR");
-if (PI == 0) then
-	MPX = "MP0_";
-else
-	MPX = "MP1_";
-end
 
 
 local textureDictTextures = {
