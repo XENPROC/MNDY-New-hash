@@ -680,9 +680,21 @@ end);
 MenuImGui:add_separator();
 MenuImGui:add_text("Computers");
 MenuImGui:add_separator();
+MenuImGui:add_button("Nightclub", function()
+    script.run_in_fiber(function (script)
+        run_script("appBusinessHub", 1424)
+    end)
+end)
+MenuImGui:add_sameline();
 MenuImGui:add_button("Bail Office", function()
     script.run_in_fiber(function (script)
         run_script("appBailOffice", 4592)
+    end)
+end)
+MenuImGui:add_sameline();
+MenuImGui:add_button("Master Control Terminal", function()
+    script.run_in_fiber(function (script)
+        run_script("appArcadeBusinessHub", 1424)
     end)
 end)
 MenuImGui:add_separator();
