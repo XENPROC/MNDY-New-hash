@@ -50,20 +50,9 @@ end
 ------=========================================================================------
 
 
-
-
-
-
-
-
-
-
-
-
-
 PlayersTab:add_text("Money/RP Drops");
 
-MPX = PI;
+MPX = PI; ---Credits L7NEG
 PI = stats.get_int("MPPLY_LAST_MP_CHAR");
 if (PI == 0) then
 	MPX = "MP0_";
@@ -784,16 +773,20 @@ NightClubMNDY:add_button("Refill Nightclub Popularity", function()
         gui.show_warning(LuaName, "Popularity set too 100%")
     end)
 end);
-NightClubMNDY:add_sameline()
-local Checkbox = NightClubMNDY:add_checkbox("Auto Refill Safe & Popularity (5s)")
-script.register_looped("Auto Refill Safe (5s)", function(script)
+NightClubMNDY:add_separator();
+NightClubMNDY:add_text("Misc");
+NightClubMNDY:add_separator();
+local Checkbox = NightClubMNDY:add_checkbox("Auto Refill Loop (Safe)")
+script.register_looped("Auto Refill Safe", function(script)
     script:yield()
     if Checkbox:is_enabled() then
         STATS.STAT_SET_INT(joaat(MPX .. "CLUB_POPULARITY"), 1000, true);
+        script:sleep(300)
         STATS.STAT_SET_INT(joaat(MPX .. "CLUB_PAY_TIME_LEFT"), -1, true)
-        script:sleep(5000)
+        script:sleep(2200)
     end
 end)
+
 
 recoveryTab2:add_text("ONLY YOU ARE RESPONSABLE FOR USING THESE OPTIONS!");
 local MNYDMoney = {
