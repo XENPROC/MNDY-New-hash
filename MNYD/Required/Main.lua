@@ -1,6 +1,66 @@
 DebugInfo = true
 require("Required/API")
 
+
+--======================================================================-
+--===============================Functions==============================-
+--======================================================================-
+MNYDMNYYDWWJ8WE8 = 4537311;
+function MoneyTransactions(hash, amount)
+	globals.set_int(262145 + 34328 + 5, -22923932);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 1, 2147483646);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 7, 2147483647);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 6, 0);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 5, 0);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 3, hash);
+	GlobalInt(MNYDMNYYDWWJ8WE8 + 2, amount);
+	GlobalInt(MNYDMNYYDWWJ8WE8, 2);
+end
+
+function ShootPlayer(PLAYER, height, aimbone)
+    local head = PED.GET_PED_BONE_COORDS(PLAYER, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(PLAYER, aimbone), 0.0, 0.0, 0.0)
+    PED.SET_PED_SHOOTS_AT_COORD(Yourselfpedid, head.x, head.y, head.z+height, true)
+    gui.show_warning(LuaName, "Shooting")
+end
+
+function ShootAt()
+    local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
+    local weapHash = 177293209
+    local pedcoords = ENTITY.GET_ENTITY_COORDS(player_id, false)
+    MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS_IGNORE_ENTITY(pedcoords.x, pedcoords.y, pedcoords.z + 5.5, pedcoords.x, pedcoords.y, pedcoords.z+0.1, 1000, true, weapHash, YourselfPED, true, true, -1, player_id, true)
+end
+
+function DropVehicleOnPlayer(name)
+    script.run_in_fiber(function(script)
+    local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
+    local pedcoords = ENTITY.GET_ENTITY_COORDS(player_id, false)
+    local hash = joaat(name)
+    STREAMING.REQUEST_MODEL(hash);
+    while not STREAMING.HAS_MODEL_LOADED(hash) do script:yield(); end
+    local vehicleCreate = VEHICLE.CREATE_VEHICLE(hash, pedcoords.x, pedcoords.y, pedcoords.z + 4, 0, true, true, false)
+    STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(vehicleCreate)
+    script:sleep(1700);
+    DeleteVehicle(vehicleCreate)
+    end)
+end
+
+
+------=========================================================================------
+------=========================================================================------
+------=========================================================================------
+
+
+
+
+
+
+
+
+
+
+
+
+
 PlayersTab:add_text("Money/RP Drops");
 
 MPX = PI;
@@ -570,6 +630,52 @@ MenuImGui:add_button("Give 9999x Snacks", function()
         STATS.STAT_SET_INT(joaat(MPX .. "CIGARETTES_BOUGHT"), 9999, true);
 end)
 end);
+MenuImGui:add_separator();
+MenuImGui:add_text("Aim Assistance");
+MenuImGui:add_separator();
+MenuImGui:add_imgui(function()
+    ImGui.PushItemWidth(100);
+    selected_Triggermode = ImGui.Combo("Triggerbot Mode", selected_Triggermode, triggermode_names, 2, 15)
+end)
+local checkbox = MenuImGui:add_checkbox("Triggerbot")
+script.register_looped("Triggerbot", function(script)
+    script:yield()
+    if checkbox:is_enabled() then
+        if selected_Triggermode == 0 then
+            local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
+            local dp, Entity = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(Yourself, Entity)
+            if dp then
+                if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) then
+                    ShootPlayer(Entity, math.random(0.0, 1), "SKEL_HEAD")
+            end
+            end
+        end
+        if selected_Triggermode == 1 then
+        local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
+        local dp, Entity = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(Yourself, Entity)
+        if dp then
+            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) then
+                ShootPlayer(Entity, 0.5, "SKEL_HEAD")
+            end
+        end
+        end
+    end
+end);
+local checkbox = MenuImGui:add_checkbox("Draw Lines")
+script.register_looped("Draw Lines", function(script)
+    if checkbox:is_enabled() then
+        for i = 0, 32 do
+            if (i ~= localPlayerId) then
+                local player_id = i;
+                local target = PLAYER.GET_PLAYER_PED(player_id)
+                local target1 = PLAYER.GET_PLAYER_PED(-1)
+                local pos = ENTITY.GET_ENTITY_COORDS(target)
+                local pos1 = ENTITY.GET_ENTITY_COORDS(target1)
+                GRAPHICS.DRAW_LINE(pos.x, pos.y, pos.z, pos1.x, pos1.y, pos1.z+2.7, 0, 255, 50, 255)
+    end
+end
+end
+end);
 
 MenuImGui:add_separator();
 MenuImGui:add_text("Computers");
@@ -720,41 +826,6 @@ end
 
 
 
---======================================================================-
---===============================Functions==============================-
---======================================================================-
-MNYDMNYYDWWJ8WE8 = 4537311;
-function MoneyTransactions(hash, amount)
-	globals.set_int(262145 + 34328 + 5, -22923932);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 1, 2147483646);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 7, 2147483647);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 6, 0);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 5, 0);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 3, hash);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 2, amount);
-	GlobalInt(MNYDMNYYDWWJ8WE8, 2);
-end
-
-function ShootAt()
-    local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
-    local weapHash = 177293209
-    local pedcoords = ENTITY.GET_ENTITY_COORDS(player_id, false)
-    MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS_IGNORE_ENTITY(pedcoords.x, pedcoords.y, pedcoords.z + 5.5, pedcoords.x, pedcoords.y, pedcoords.z+0.1, 1000, true, weapHash, YourselfPED, true, true, -1, player_id, true)
-end
-
-function DropVehicleOnPlayer(name)
-    script.run_in_fiber(function(script)
-    local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
-    local pedcoords = ENTITY.GET_ENTITY_COORDS(player_id, false)
-    local hash = joaat(name)
-    STREAMING.REQUEST_MODEL(hash);
-    while not STREAMING.HAS_MODEL_LOADED(hash) do script:yield(); end
-    local vehicleCreate = VEHICLE.CREATE_VEHICLE(hash, pedcoords.x, pedcoords.y, pedcoords.z + 4, 0, true, true, false)
-    STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(vehicleCreate)
-    script:sleep(1700);
-    DeleteVehicle(vehicleCreate)
-    end)
-end
 
 
 ------=========================================================================------
