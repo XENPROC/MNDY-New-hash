@@ -842,7 +842,7 @@ StatisticsMNDY:add_text("Coming Soon");
 script.register_looped("tick", function(script)
 if DebugInfo then
     DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ MNDY Version: 1.69", 0.28, 0.00, 0.0, 0.2000)
-    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 27/06/24", 0.28, 0.012, 0.0, 0.2000)
+    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 02/07/24", 0.28, 0.012, 0.0, 0.2000)
 end
     end)
 ------=========================================================================------
