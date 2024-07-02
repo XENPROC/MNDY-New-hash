@@ -17,9 +17,13 @@ function MoneyTransactions(hash, amount)
 	GlobalInt(MNYDMNYYDWWJ8WE8, 2);
 end
 
-function ShootPlayer(PLAYER, height, aimbone)
-    local head = PED.GET_PED_BONE_COORDS(PLAYER, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(PLAYER, aimbone), 0.0, 0.0, 0.0)
-    PED.SET_PED_SHOOTS_AT_COORD(Yourselfpedid, head.x, head.y, head.z+height, true)
+function formatMoney(value)
+    return "$"..tostring(value):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", "")
+  end
+
+function ShootPlayer(PLAYER, height)
+    local head = PED.GET_PED_BONE_COORDS(PLAYER, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(PLAYER, 31086), 0, 0, 0)
+    PED.SET_PED_SHOOTS_AT_COORD(Yourselfpedid, head.x, head.y, head.z+height, 1)
     gui.show_warning(LuaName, "Shooting")
 end
 
@@ -635,7 +639,7 @@ script.register_looped("Triggerbot", function(script)
             local dp, Entity = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(Yourself, Entity)
             if dp then
                 if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) then
-                    ShootPlayer(Entity, math.random(0.0, 1), "SKEL_HEAD")
+                    ShootPlayer(Entity, math.random(0.0, 1))
             end
             end
         end
@@ -643,8 +647,11 @@ script.register_looped("Triggerbot", function(script)
         local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
         local dp, Entity = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(Yourself, Entity)
         if dp then
-            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) then
-                ShootPlayer(Entity, 0.5, "SKEL_HEAD")
+            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and not PED.IS_PED_RAGDOLL(Entity) or PED.IS_PED_FALLING(Entity) then
+                ShootPlayer(Entity, 0.6)
+            end
+            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and PED.IS_PED_RAGDOLL(Entity) or PED.IS_PED_FALLING(Entity) then
+                ShootPlayer(Entity, 0)
             end
         end
         end
@@ -786,6 +793,17 @@ script.register_looped("Auto Refill Safe", function(script)
         script:sleep(2200)
     end
 end)
+NightClubMNDY:add_separator();
+NightClubMNDY:add_text("Stats");
+NightClubMNDY:add_separator();
+NightClubMNDY:add_imgui(function()
+    local cashSupply   = stats.get_int(MPX.."CLUB_SAFE_CASH_VALUE")
+    local PopularitySupply   = stats.get_int(MPX.."CLUB_POPULARITY")
+    local CLUBTimeLeft   = stats.get_int(MPX.."CLUB_PAY_TIME_LEFT")
+    ImGui.Text("Current Popularity: "..(PopularitySupply/10).."/100%")
+    ImGui.Text("Current Safe Amount: "..formatMoney(cashSupply))
+    ImGui.Text("Time Till Next Pay: "..CLUBTimeLeft)
+end)
 
 
 recoveryTab2:add_text("ONLY YOU ARE RESPONSABLE FOR USING THESE OPTIONS!");
@@ -827,12 +845,6 @@ if DebugInfo then
     DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 27/06/24", 0.28, 0.012, 0.0, 0.2000)
 end
     end)
-
-
-
-
-
-
 ------=========================================================================------
 ------===============================Credits===================================------
 ------=========================================================================------
