@@ -1,7 +1,55 @@
 DebugInfo = true
 require("Required/API")
+local SelectedInt = 0
+local StatCombosInt = {
+    "Select a Stat",
+    "MPPLY_GLOBALXP",
+	"MPPLY_KILLS_PLAYERS",
+	"MPPLY_DEATHS_PLAYER",
+    "MPPLY_DM_TOTAL_KILLS",
+    "MPPLY_DM_TOTAL_DEATHS",
+    "MPPLY_TOTAL_SPENT",
+    "MPPLY_TOTAL_EARNED",
+    "MPPLY_DEATHS_PLAYER",
+    "MPPLY_MOST_FAVORITE_STATION",
+    "MONEY_EARN_BETTING"
 
+}
+StatisticsMNDY:add_separator();
+StatisticsMNDY:add_text("INT Stats");
+StatisticsMNDY:add_separator();
+StatisticsMNDY:add_imgui(function()
+    ImGui.PushItemWidth(265);
+    SelectedInt = ImGui.Combo("##SelectedInt", SelectedInt, StatCombosInt, 11)
+    Statamount = ImGui.InputInt("Amount", Statamount, 1, 2147483646);
+    TDBPUp = ImGui.Button("Update Stat (INT)");
+    if TDBPUp then
+        STATS.STAT_SET_INT(joaat(StatCombosInt[SelectedInt+1]), Statamount, true);
+        gui.show_warning(LuaName, "Updated: "..StatCombosInt[SelectedInt+1].. " \nStat Type: INT \nAmount: "..Statamount)
+    end
+end)
 
+StatisticsMNDY:add_separator();
+StatisticsMNDY:add_text("Float Stats");
+StatisticsMNDY:add_separator();
+
+local Selectedfloat = 0
+local StatCombosfloat = {
+    "Select a Stat",
+    "MPPLY_KILL_DEATH_RATIO",
+    "MPPLY_CHAR_DIST_TRAVELLED",
+
+}
+StatisticsMNDY:add_imgui(function()
+    ImGui.PushItemWidth(265);
+    Selectedfloat = ImGui.Combo("##Selectedfloat", Selectedfloat, StatCombosfloat, 3)
+    Statamountfloat = ImGui.InputFloat("Amount ", Statamountfloat, 1.0, 2147483646);
+    UpdateFloats = ImGui.Button("Update Stat (Float)");
+    if UpdateFloats then
+        STATS.STAT_SET_FLOAT(joaat(StatCombosfloat[Selectedfloat+1]), Statamountfloat, true);
+        gui.show_warning(LuaName, "Updated: "..StatCombosfloat[Selectedfloat+1].. " \nStat Type: Float \nAmount: "..Statamountfloat)
+    end
+end)
 --======================================================================-
 --===============================Functions==============================-
 --======================================================================-
@@ -648,9 +696,12 @@ script.register_looped("Triggerbot", function(script)
         local dp, Entity = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(Yourself, Entity)
         if dp then
             if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and not PED.IS_PED_RAGDOLL(Entity) or PED.IS_PED_FALLING(Entity) then
-                ShootPlayer(Entity, 0.6)
+                ShootPlayer(Entity, 0.58)
             end
             if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and PED.IS_PED_RAGDOLL(Entity) or PED.IS_PED_FALLING(Entity) then
+                ShootPlayer(Entity, 0)
+            end
+            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and PED.IS_PED_IN_ANY_VEHICLE(Entity) then
                 ShootPlayer(Entity, 0)
             end
         end
@@ -665,12 +716,52 @@ script.register_looped("Draw Lines", function(script)
                 local player_id = i;
                 local target = PLAYER.GET_PLAYER_PED(player_id)
                 local target1 = PLAYER.GET_PLAYER_PED(-1)
+                if target ~= PLAYER.PLAYER_PED_ID() then
                 local pos = ENTITY.GET_ENTITY_COORDS(target)
                 local pos1 = ENTITY.GET_ENTITY_COORDS(target1)
-                GRAPHICS.DRAW_LINE(pos.x, pos.y, pos.z, pos1.x, pos1.y, pos1.z+2.7, 0, 255, 50, 255)
+                if PED.IS_PED_IN_ANY_VEHICLE(target1) then 
+                    GRAPHICS.DRAW_LINE(pos.x, pos.y, pos.z, pos1.x, pos1.y, pos1.z+6.7, 0, 255, 50, 255)
+                else
+                    GRAPHICS.DRAW_LINE(pos.x, pos.y, pos.z, pos1.x, pos1.y, pos1.z+2.7, 0, 255, 50, 255)
+                end
+            end
     end
 end
 end
+end);
+
+local checkbox = MenuImGui:add_checkbox("Draw Box")
+script.register_looped("Draw Box", function(script)
+    
+    if checkbox:is_enabled() then
+        for i = 0, 32 do
+                    local Target = PLAYER.GET_PLAYER_PED(i)
+                    local target1 = PLAYER.GET_PLAYER_PED(-1)
+                    bone = ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(Target, 31086)
+                    pos = PED.GET_PED_BONE_COORDS(Target, bone, 0.0, 0.0, 0.9)
+                    pos2 = ENTITY.GET_ENTITY_COORDS(target1)
+				if MISC.GET_DISTANCE_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos2.x,pos2.y,pos2.z, true) < 1000 then
+					if Target ~= PLAYER.PLAYER_PED_ID() and  ENTITY.IS_ENTITY_ON_SCREEN(Target) and not PED.IS_PED_DEAD_OR_DYING(Target) then
+                    
+						local Distance = MISC.GET_DISTANCE_BETWEEN_COORDS(pos.x,pos.y,pos.z, pos2.x,pos2.y,pos2.z, true) * 0.002 / 2
+	
+						retval, _x, _y = GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pos.x,pos.y,pos.z)
+	
+                        width = 0.00045
+						height = 0.0023
+	
+                        GRAPHICS.DRAW_RECT(_x, _y, width / Distance, 0.0015, 0, 0, 255, 200)
+						GRAPHICS.DRAW_RECT(_x, _y + height / Distance, width / Distance, 0.0015, 0, 0, 255, 200)
+						GRAPHICS.DRAW_RECT(_x + width / 2 / Distance, _y + height / 2 / Distance , 0.001, height / Distance, 0, 0, 255, 200)
+						GRAPHICS.DRAW_RECT(_x - width / 2 / Distance, _y + height / 2 / Distance , 0.001, height / Distance, 0, 0, 255, 200)
+                        DrawText(PLAYER.GET_PLAYER_NAME(i), _x+0.007, _y, 0.2, 0.2)
+                        DrawText("Health: "..ENTITY.GET_ENTITY_HEALTH(Target), _x+0.007, _y + 0.01, 0.2, 0.2)
+               
+						
+                end
+            end 
+        end
+    end
 end);
 
 MenuImGui:add_separator();
@@ -836,13 +927,10 @@ recoveryTab2:add_imgui(function()
     end
 end)
 
-
-StatisticsMNDY:add_text("Coming Soon");
-
 script.register_looped("tick", function(script)
 if DebugInfo then
     DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ MNDY Version: 1.69", 0.28, 0.00, 0.0, 0.2000)
-    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 02/07/24", 0.28, 0.012, 0.0, 0.2000)
+    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 04/07/24", 0.28, 0.012, 0.0, 0.2000)
 end
     end)
 ------=========================================================================------
