@@ -1,55 +1,65 @@
 DebugInfo = true
+value = 1 -- Default Button: INT
+textint = ""
+textFloat = ""
+textbool = ""
+Stattrueorfalse = {"false","true"}
 require("Required/API")
-local SelectedInt = 0
-local StatCombosInt = {
-    "Select a Stat",
-    "MPPLY_GLOBALXP",
-	"MPPLY_KILLS_PLAYERS",
-	"MPPLY_DEATHS_PLAYER",
-    "MPPLY_DM_TOTAL_KILLS",
-    "MPPLY_DM_TOTAL_DEATHS",
-    "MPPLY_TOTAL_SPENT",
-    "MPPLY_TOTAL_EARNED",
-    "MPPLY_DEATHS_PLAYER",
-    "MPPLY_MOST_FAVORITE_STATION",
-    "MONEY_EARN_BETTING"
-
-}
 StatisticsMNDY:add_separator();
-StatisticsMNDY:add_text("INT Stats");
+StatisticsMNDY:add_text("Stats");
 StatisticsMNDY:add_separator();
 StatisticsMNDY:add_imgui(function()
-    ImGui.PushItemWidth(265);
-    SelectedInt = ImGui.Combo("##SelectedInt", SelectedInt, StatCombosInt, 11)
-    Statamount = ImGui.InputInt("Amount", Statamount, 1, 2147483646);
-    TDBPUp = ImGui.Button("Update Stat (INT)");
+    if value == 1 then
+        ImGui.Text("Example Below: \nHash: MPPLY_KILLS_PLAYERS, \nAmount: 1000")
+        end
+        if value == 2 then
+            ImGui.Text("Example Below: \nHash: MPPLY_KILL_DEATH_RATIO, \nAmount: 12.0")
+        end
+        if value == 3 then
+            ImGui.Text("Example Below: \nHash: MPX_AWD_WIZHARD, \nState: true")
+        end
+    value, ischanged = ImGui.RadioButton("INT", value, 1)ImGui.SameLine((80) - (10));
+    value, ischanged = ImGui.RadioButton("FLOAT", value, 2)
+    ImGui.SameLine();
+    value, ischanged = ImGui.RadioButton("BOOL", value, 3)
+end)
+StatisticsMNDY:add_separator();
+StatisticsMNDY:add_imgui(function()
+    ImGui.PushItemWidth(245);
+    if value == 1 then
+        textint, selected = ImGui.InputText("Hash", textint, 100)
+        Statamount = ImGui.InputInt("Amount", Statamount, 1, 2147483646);
+        TDBPUp = ImGui.Button("Update");
     if TDBPUp then
-        STATS.STAT_SET_INT(joaat(StatCombosInt[SelectedInt+1]), Statamount, true);
-        gui.show_warning(LuaName, "Updated: "..StatCombosInt[SelectedInt+1].. " \nStat Type: INT \nAmount: "..Statamount)
+            STATS.STAT_SET_INT(joaat(textint), Statamount, true);
+            gui.show_warning(LuaName, "Updated: ".. textint.. " \nStat Type: INT \nAmount: "..Statamount)
+    end
+end
+    if value == 2 then
+        textFloat, selected = ImGui.InputText("Hash", textFloat, 100)
+        Statamountfloat = ImGui.InputFloat("Amount ", Statamountfloat, 1.0, 2147483646);
+        UpdateFloats = ImGui.Button("Update");
+        if UpdateFloats then
+            STATS.STAT_SET_FLOAT(joaat(textFloat), Statamountfloat, true);
+            gui.show_warning(LuaName, "Updated: "..textFloat.. " \nStat Type: FLOAT \nAmount: "..Statamountfloat)
+        end
+    end
+    if value == 3 then
+        textbool, selected = ImGui.InputText("Hash", textbool, 100)
+        Selectedbool = ImGui.Combo("State", Selectedbool, Stattrueorfalse, 2)
+        UpdateBool = ImGui.Button("Update");
+        if UpdateBool then
+            if Selectedbool == 0 then
+            stats.set_bool(textbool, false)
+            end
+            if Selectedbool == 1 then
+                stats.set_bool(textbool, true)
+                end
+            gui.show_warning(LuaName, "Updated: "..textbool.. " \nStat Type: BOOL \nState: "..Selectedbool)
+        end
     end
 end)
 
-StatisticsMNDY:add_separator();
-StatisticsMNDY:add_text("Float Stats");
-StatisticsMNDY:add_separator();
-
-local Selectedfloat = 0
-local StatCombosfloat = {
-    "Select a Stat",
-    "MPPLY_KILL_DEATH_RATIO",
-    "MPPLY_CHAR_DIST_TRAVELLED",
-
-}
-StatisticsMNDY:add_imgui(function()
-    ImGui.PushItemWidth(265);
-    Selectedfloat = ImGui.Combo("##Selectedfloat", Selectedfloat, StatCombosfloat, 3)
-    Statamountfloat = ImGui.InputFloat("Amount ", Statamountfloat, 1.0, 2147483646);
-    UpdateFloats = ImGui.Button("Update Stat (Float)");
-    if UpdateFloats then
-        STATS.STAT_SET_FLOAT(joaat(StatCombosfloat[Selectedfloat+1]), Statamountfloat, true);
-        gui.show_warning(LuaName, "Updated: "..StatCombosfloat[Selectedfloat+1].. " \nStat Type: Float \nAmount: "..Statamountfloat)
-    end
-end)
 --======================================================================-
 --===============================Functions==============================-
 --======================================================================-
@@ -69,11 +79,6 @@ function formatMoney(value)
     return "$"..tostring(value):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", "")
   end
 
-function ShootPlayer(PLAYER, height)
-    local head = PED.GET_PED_BONE_COORDS(PLAYER, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(PLAYER, 31086), 0, 0, 0)
-    PED.SET_PED_SHOOTS_AT_COORD(Yourselfpedid, head.x, head.y, head.z+height, 1)
-    gui.show_warning(LuaName, "Shooting")
-end
 
 function ShootAt()
     local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
@@ -671,6 +676,14 @@ MenuImGui:add_button("Give 9999x Snacks", function()
         STATS.STAT_SET_INT(joaat(MPX .. "CIGARETTES_BOUGHT"), 9999, true);
 end)
 end);
+local checkbox = MenuImGui:add_checkbox("Infinate Roll")
+script.register_looped("Infinate Roll", function(script)
+    if checkbox:is_enabled() then
+        for i = 0, 32 do
+            STATS.STAT_SET_INT(joaat("mp".. i .. "_shooting_ability"), 190, true);
+end
+end
+end);
 MenuImGui:add_separator();
 MenuImGui:add_text("Aim Assistance");
 MenuImGui:add_separator();
@@ -678,6 +691,7 @@ MenuImGui:add_imgui(function()
     ImGui.PushItemWidth(100);
     selected_Triggermode = ImGui.Combo("Triggerbot Mode", selected_Triggermode, triggermode_names, 2, 15)
 end)
+
 local checkbox = MenuImGui:add_checkbox("Triggerbot")
 script.register_looped("Triggerbot", function(script)
     script:yield()
@@ -696,7 +710,7 @@ script.register_looped("Triggerbot", function(script)
         local dp, Entity = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(Yourself, Entity)
         if dp then
             if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and not PED.IS_PED_RAGDOLL(Entity) or PED.IS_PED_FALLING(Entity) then
-                ShootPlayer(Entity, 0.58)
+                ShootPlayer(Entity, 0.63)
             end
             if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and PED.IS_PED_RAGDOLL(Entity) or PED.IS_PED_FALLING(Entity) then
                 ShootPlayer(Entity, 0)
@@ -708,6 +722,16 @@ script.register_looped("Triggerbot", function(script)
         end
     end
 end);
+function ShootPlayer(PLAYER, height)
+    script.run_in_fiber(function(script)
+        script:yield()
+    local head = PED.GET_PED_BONE_COORDS(PLAYER, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(PLAYER, 31086), 0, 0, 0)
+    PED.SET_PED_SHOOTS_AT_COORD(Yourselfpedid, head.x, head.y, head.z+height, 1)
+    script:sleep(1);
+    PED.SET_PED_SHOOTS_AT_COORD(Yourselfpedid, head.x, head.y, head.z+height, 1)
+    gui.show_warning(LuaName, "Shooting")
+end)
+end
 local checkbox = MenuImGui:add_checkbox("Draw Lines")
 script.register_looped("Draw Lines", function(script)
     if checkbox:is_enabled() then
@@ -884,16 +908,20 @@ script.register_looped("Auto Refill Safe", function(script)
         script:sleep(2200)
     end
 end)
+
+
 NightClubMNDY:add_separator();
 NightClubMNDY:add_text("Stats");
 NightClubMNDY:add_separator();
 NightClubMNDY:add_imgui(function()
     local cashSupply   = stats.get_int(MPX.."CLUB_SAFE_CASH_VALUE")
+    local NightClubEarnings   = stats.get_int(MPX.."NIGHTCLUB_EARNINGS")
     local PopularitySupply   = stats.get_int(MPX.."CLUB_POPULARITY")
     local CLUBTimeLeft   = stats.get_int(MPX.."CLUB_PAY_TIME_LEFT")
     ImGui.Text("Current Popularity: "..(PopularitySupply/10).."/100%")
     ImGui.Text("Current Safe Amount: "..formatMoney(cashSupply))
-    ImGui.Text("Time Till Next Pay: "..CLUBTimeLeft)
+    ImGui.Text("Earnings: "..formatMoney(NightClubEarnings))
+    ImGui.Text("Time Till Next Pay: "..CLUBTimeLeft) 
 end)
 
 
@@ -901,9 +929,8 @@ recoveryTab2:add_text("ONLY YOU ARE RESPONSABLE FOR USING THESE OPTIONS!");
 local MNYDMoney = {
     ["5k Chips"] = { globalnum = 1964419, Num2 = 1, ConsoleDisplay = "Given 5K Chips" },
     ["50k"] = { hash = 1628412596, value = 50000, ConsoleDisplay = "SERVICE_EARN_YOHAN_SOURCE_GOODS" },
- 
+    ["180k"] = { hash = 0x615762F1, value = 180000, ConsoleDisplay = "0x615762F1" },
 }
-
 for name, MNYDmonInfo in pairs(MNYDMoney) do
     local checkbox = recoveryTab2:add_checkbox(name)
     script.register_looped(name, function(script)

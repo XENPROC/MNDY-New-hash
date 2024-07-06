@@ -10,6 +10,7 @@ TransferBank2 = false
 TransferBank = 0
 Statamount = 0
 Statamountfloat = 0.0
+Selectedbool = 0
 Transaction_names = {"Bank","Wallet"}
 triggermode_names = {"Realistic","Unreal"}
 selected_Triggermode = 0
@@ -23,12 +24,13 @@ Watermark_Features = 0
 ShowAtAllTimes = false
 LuaName = "MNDY"
 gui.show_message("NewWay", LuaName.." Loaded")
-PlayersTab = gui.get_tab("GUI_TAB_PLAYER");
+PlayersTab = gui.get_tab("GUI_TAB_PLAYER")
 StatisticsMNDY = gui.get_tab("MNDY Stats Editor")
 recoveryTab2 = gui.get_tab("MNDY Recovery")
 NightClubMNDY = gui.get_tab("MNDY NightClub")
 MenuImGui = gui.get_tab("MNDY Misc")
 AllPlayers = gui.get_tab("MNDY All Players")
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
  --==MNDY==--
