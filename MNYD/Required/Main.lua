@@ -957,7 +957,7 @@ end)
 script.register_looped("tick", function(script)
 if DebugInfo then
     DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ MNDY Version: 1.69", 0.28, 0.00, 0.0, 0.2000)
-    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 04/07/24", 0.28, 0.012, 0.0, 0.2000)
+    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 06/07/24", 0.28, 0.012, 0.0, 0.2000)
 end
     end)
 ------=========================================================================------
