@@ -5,6 +5,23 @@ textFloat = ""
 textbool = ""
 Stattrueorfalse = {"false","true"}
 require("Required/API")
+
+MNDYTeleports:add_separator();
+MNDYTeleports:add_text("Special Teleports");
+MNDYTeleports:add_separator();
+MNDYTeleports:add_button("Gun Van", function()
+    script.run_in_fiber(function(script)
+            teleport_too_blip(844)
+    end)
+end);
+MNDYTeleports:add_separator();
+MNDYTeleports:add_text("Locations");
+MNDYTeleports:add_separator();
+MNDYTeleports:add_button("Hanger", function()
+    script.run_in_fiber(function(script)
+            teleport_too_blip(569)
+    end)
+end);
 StatisticsMNDY:add_separator();
 StatisticsMNDY:add_text("Stats");
 StatisticsMNDY:add_separator();
@@ -65,7 +82,6 @@ end)
 --======================================================================-
 MNYDMNYYDWWJ8WE8 = 4537311;
 function MoneyTransactions(hash, amount)
-	globals.set_int(262145 + 34328 + 5, -22923932);
 	GlobalInt(MNYDMNYYDWWJ8WE8 + 1, 2147483646);
 	GlobalInt(MNYDMNYYDWWJ8WE8 + 7, 2147483647);
 	GlobalInt(MNYDMNYYDWWJ8WE8 + 6, 0);
@@ -101,21 +117,51 @@ function DropVehicleOnPlayer(name)
     end)
 end
 
-
-------=========================================================================------
-------=========================================================================------
-------=========================================================================------
-
-
-PlayersTab:add_text("Money/RP Drops");
-
-MPX = PI; ---Credits L7NEG
-PI = stats.get_int("MPPLY_LAST_MP_CHAR");
-if (PI == 0) then
-	MPX = "MP0_";
-else
-	MPX = "MP1_";
+function is_player_in_interior(player_id, interior_id)
+    local player_ped = PLAYER.GET_PLAYER_PED(player_id)
+    local player_interior_id = INTERIOR.GET_INTERIOR_FROM_ENTITY(player_ped)
+    return player_interior_id == interior_id
 end
+
+function teleport_too_blip(blipNum)
+	local Pos = HUD.GET_BLIP_COORDS(HUD.GET_FIRST_BLIP_INFO_ID(blipNum));
+	if HUD.DOES_BLIP_EXIST(HUD.GET_FIRST_BLIP_INFO_ID(blipNum)) then
+		PED.SET_PED_COORDS_KEEP_VEHICLE(PLAYER.PLAYER_PED_ID(), Pos.x, Pos.y, Pos.z + 4);
+	end
+end
+
+function Load_interior(interior_id)
+    STREAMING.REQUEST_IPL(interior_id)
+    local is_loaded = STREAMING.IS_IPL_ACTIVE(interior_id)
+    if is_loaded then
+        gui.show_warning(LuaName, "Interior: " .. interior_id .. " Loaded successfully!")
+    else
+        gui.show_warning(LuaName, "Interior: " .. interior_id .. " Failed to Load!")
+    end
+end
+
+function unload_interior(interior_id)
+    STREAMING.REMOVE_IPL(interior_id)
+    local is_UNloaded = not STREAMING.IS_IPL_ACTIVE(interior_id)
+    if is_UNloaded then
+        gui.show_warning(LuaName, "Interior: " .. interior_id .. " unloaded successfully!")
+    else
+        gui.show_warning(LuaName, "Interior: " .. interior_id .. " Failed to Load!")
+    end
+end
+
+local function MPX() ---Credits L7NEG
+	local PI = stats.get_int("MPPLY_LAST_MP_CHAR")
+	if PI == 0 then
+		return "MP0_"
+	else
+		return "MP1_"
+	end
+end
+
+------=========================================================================------
+------=========================================================================------
+------=========================================================================------
 
 function run_script(name, Bit)
 	script.run_in_fiber(function(runscript)
@@ -267,14 +313,19 @@ PlayersTab:add_button("Fix Vehicle", function()
     end)
 end);
 
-
+AllPlayers:add_separator();
+AllPlayers:add_text("Settings");
+IncludeSelfALL = AllPlayers:add_checkbox("Include Self")
+AllPlayers:add_separator();
 local checkbox = AllPlayers:add_checkbox("Explode All (Anonymous)")
 script.register_looped("Explode All", function(script)
     script:yield()
     if checkbox:is_enabled() then
         gui.show_message(LuaName, "Exploding All Players Repeatedly");
         for i = 0, 32 do
-            if (i ~= localPlayerId) then
+            Target = PLAYER.GET_PLAYER_PED(i)
+            if IncludeSelfALL:is_enabled() then
+                if (Target ~= PLAYER.PLAYER_PED_ID()) then
                 local player_id = i;
                 local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player_id), true);
                 FIRE.ADD_EXPLOSION(coords.x, coords.y, coords.z, explosionType, 100000, true, false, 0, false);
@@ -282,8 +333,17 @@ script.register_looped("Explode All", function(script)
                 GRAPHICS.START_PARTICLE_FX_NON_LOOPED_AT_COORD("explosion_barrel", coords.x, coords.y, coords.z, 0, 0, 0,
                     1, false, true, false);
                 script:sleep(1);
+                else
+                    local player_id = i;
+                    local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player_id), true);
+                    FIRE.ADD_EXPLOSION(coords.x, coords.y, coords.z, explosionType, 100000, true, false, 0, false);
+                    GRAPHICS.USE_PARTICLE_FX_ASSET(explosionFx);
+                    GRAPHICS.START_PARTICLE_FX_NON_LOOPED_AT_COORD("explosion_barrel", coords.x, coords.y, coords.z, 0, 0, 0,
+                        1, false, true, false);
+                    script:sleep(1);
             end
         end
+    end
     end
 end)
 AllPlayers:add_sameline()
@@ -293,13 +353,22 @@ script.register_looped("Ragdoll All", function(script)
     if checkbox:is_enabled() then
         gui.show_message(LuaName, "Ragdolled all players");
         for i = 0, 32 do
-            if (i ~= localPlayerId) then
+            Target = PLAYER.GET_PLAYER_PED(i)
+            if IncludeSelfALL:is_enabled() then
+                if (Target ~= PLAYER.PLAYER_PED_ID()) then
                 local player_id = i;
                 local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player_id), true);
                 coords.z = coords.z - 2;
                 FIRE.ADD_EXPLOSION(coords.x, coords.y, coords.z, 11, 1, false, true, 100, false);
                 script:sleep(1);
+                else
+                    local player_id = i;
+                    local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player_id), true);
+                    coords.z = coords.z - 2;
+                    FIRE.ADD_EXPLOSION(coords.x, coords.y, coords.z, 11, 1, false, true, 100, false);
+                    script:sleep(1);
             end
+        end
         end
     end
 end)
@@ -309,7 +378,8 @@ script.register_looped("Burn All", function(script)
     if checkbox:is_enabled() then
         gui.show_message(LuaName, "Burning Players");
         for i = 0, 32 do
-            if (i ~= localPlayerId) then
+            Target = PLAYER.GET_PLAYER_PED(i)
+            if (Target ~= PLAYER.PLAYER_PED_ID()) then
                 local player_id = i;
                 local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player_id), true);
                 coords.z = coords.z + 0.8;
@@ -326,7 +396,8 @@ script.register_looped("Raygun All", function(script)
     if checkbox:is_enabled() then
         gui.show_message(LuaName, "Rayguning Players");
         for i = 0, 32 do
-            if (i ~= localPlayerId) then
+            Target = PLAYER.GET_PLAYER_PED(i)
+            if (Target ~= PLAYER.PLAYER_PED_ID()) then
                 local player_id = i;
                 local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player_id), true);
                 coords.z = coords.z + 0.8;
@@ -342,7 +413,8 @@ script.register_looped("Rattle Screen", function(script)
     script:yield()
     if checkbox:is_enabled() then
         for i = 0, 32 do
-            if (i ~= localPlayerId) then
+            Target = PLAYER.GET_PLAYER_PED(i)
+            if (Target ~= PLAYER.PLAYER_PED_ID()) then
                 local player_id = i;
                 local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player_id), true);
                 coords.z = coords.z + 0.8;
@@ -359,7 +431,8 @@ script.register_looped("Speedy Vehicle", function(script)
     script:yield()
     if checkbox:is_enabled() then
         for i = 0, 32 do
-            if (i ~= localPlayerId) then
+            Target = PLAYER.GET_PLAYER_PED(i)
+            if (Target ~= PLAYER.PLAYER_PED_ID()) then
                 local player_id = i;
                 local model = joaat("stt_prop_track_speedup_t1");
                 local pos = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(player_id), false);
@@ -384,7 +457,8 @@ script.register_looped("Slow Vehicle", function(script)
     script:yield()
     if checkbox:is_enabled() then
         for i = 0, 32 do
-            if (i ~= localPlayerId) then
+            Target = PLAYER.GET_PLAYER_PED(i)
+            if (Target ~= PLAYER.PLAYER_PED_ID()) then
                 local player_id = i;
                 local model = joaat("stt_prop_track_slowdown");
                 local pos = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(player_id), false);
@@ -429,6 +503,226 @@ AllPlayers:add_button("Mount Chiliad", function()
     network.set_all_player_coords(501.403, 5598.647, 796.137, true);
     ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()), 501.403, 5598.647, 796.137, false, false, true,
         true);
+end);
+
+MNDYPvP:add_separator();
+MNDYPvP:add_text("Aim Assistance");
+MNDYPvP:add_separator();
+MNDYPvP:add_imgui(function()
+    ImGui.PushItemWidth(100);
+    selected_Triggermode = ImGui.Combo("Triggerbot Mode", selected_Triggermode, triggermode_names, 2, 15)
+end)
+local Triggerbot = MNDYPvP:add_checkbox("Triggerbot")
+
+
+script.register_looped("Triggerbot", function(script)
+    script:yield()
+    if Triggerbot:is_enabled() then
+        if selected_Triggermode == 0 then
+            local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
+            local dp, Entity = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(Yourself, Entity)
+            if dp then
+                if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) then
+                    ShootPlayer(Entity, math.random(0.0, 1))
+            end
+            end
+        end
+        if selected_Triggermode == 1 then
+        local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
+        local dp, Entity = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(Yourself, Entity)
+        if dp then
+            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and not PED.IS_PED_RAGDOLL(Entity) or PED.IS_PED_FALLING(Entity) then
+                ShootPlayer(Entity, 0.63)
+            end
+            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and PED.IS_PED_RAGDOLL(Entity) or PED.IS_PED_FALLING(Entity) then
+                ShootPlayer(Entity, 0)
+            end
+            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and PED.IS_PED_IN_ANY_VEHICLE(Entity) then
+                ShootPlayer(Entity, 0)
+            end
+        end
+        end
+    end
+end);
+function ShootPlayer(PLAYER, height)
+    script.run_in_fiber(function(script)
+        script:yield()
+    local head = PED.GET_PED_BONE_COORDS(PLAYER, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(PLAYER, 31086), 0, 0, 0)
+    PED.SET_PED_SHOOTS_AT_COORD(Yourselfpedid, head.x, head.y, head.z+height, 1)
+    gui.show_warning(LuaName, "Shooting")
+end)
+end
+
+local checkbox = MNDYPvP:add_checkbox("Aimbot")
+script.register_looped("Draw Lines", function(script)
+    if checkbox:is_enabled() then
+        for i = 0, 32 do
+            if (i ~= localPlayerId) then
+                        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) then
+                            local TargetPed = PLAYER.GET_PLAYER_PED(i);
+                            local TargetPos = ENTITY.GET_ENTITY_COORDS(TargetPed)
+                            local Exist = ENTITY.DOES_ENTITY_EXIST(TargetPed)
+                            local Dead = PLAYER.IS_PLAYER_DEAD(TargetPed)
+                
+                            if Exist and not Dead then
+                                local OnScreen, ScreenX, ScreenY = GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(TargetPos.x, TargetPos.y, TargetPos.z, 0)
+                                if ENTITY.IS_ENTITY_VISIBLE(TargetPed) then
+                                    if OnScreen then
+                                        local TargetCoords = PED.GET_PED_BONE_COORDS(TargetPed, 31086, 0, 0, 0)
+                                        PED.SET_PED_SHOOTS_AT_COORD(PLAYER.PLAYER_PED_ID(), TargetCoords.x, TargetCoords.y, TargetCoords.z, 1)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end);
+
+
+MNDYPvP:add_separator();
+MNDYPvP:add_text("Visual Assistance");
+MNDYPvP:add_separator();
+local checkbox = MNDYPvP:add_checkbox("Draw Lines")
+script.register_looped("Draw Lines", function(script)
+    if checkbox:is_enabled() then
+        for i = 0, 32 do
+            if (i ~= localPlayerId) then
+                local player_id = i;
+                local target = PLAYER.GET_PLAYER_PED(player_id)
+                local target1 = PLAYER.GET_PLAYER_PED(-1)
+                if target ~= PLAYER.PLAYER_PED_ID() then
+                local pos = ENTITY.GET_ENTITY_COORDS(target)
+                local pos1 = ENTITY.GET_ENTITY_COORDS(target1)
+                if PED.IS_PED_IN_ANY_VEHICLE(target1) then 
+                    GRAPHICS.DRAW_LINE(pos.x, pos.y, pos.z, pos1.x, pos1.y, pos1.z+6.7, 0, 255, 50, 255)
+                else
+                    GRAPHICS.DRAW_LINE(pos.x, pos.y, pos.z, pos1.x, pos1.y, pos1.z+2.7, 0, 255, 50, 255)
+                    end
+                end
+            end
+        end
+    end
+end);
+local checkbox = MNDYPvP:add_checkbox("Draw Box")
+MNDYPvP:add_sameline();
+local Healthbox = MNDYPvP:add_checkbox("Health")
+MNDYPvP:add_sameline();
+local Armourbox = MNDYPvP:add_checkbox("Armour")
+script.register_looped("Draw Box", function(script)
+    if NETWORK.NETWORK_IS_IN_SESSION() == true then
+        if checkbox:is_enabled() then
+            Camcoords = CAM.GET_GAMEPLAY_CAM_COORD()
+            CAM.RENDER_SCRIPT_CAMS(true, false, 0, true)
+            for i = 0, 32 do
+                    local Target = PLAYER.GET_PLAYER_PED(i)
+                    local target1 = PLAYER.GET_PLAYER_PED(-1)
+                    bone = ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(Target, 31086)
+                    pos = PED.GET_PED_BONE_COORDS(Target, bone, 0.0, 0.0, 0.9)
+                    pos2 = ENTITY.GET_ENTITY_COORDS(target1)
+				if MISC.GET_DISTANCE_BETWEEN_COORDS(pos.x, pos.y, pos.z, Camcoords.x,Camcoords.y,Camcoords.z, true) < 1000 then
+					if Target ~= PLAYER.PLAYER_PED_ID() and  ENTITY.IS_ENTITY_ON_SCREEN(Target) and not PED.IS_PED_DEAD_OR_DYING(Target) then
+                    
+						local Distance = MISC.GET_DISTANCE_BETWEEN_COORDS(pos.x,pos.y,pos.z, Camcoords.x,Camcoords.y,Camcoords.z, true) * 0.002 / 2
+	
+						retval, _x, _y = GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pos.x,pos.y,pos.z)
+	
+                        width = 0.00045
+						height = 0.0023
+	
+                        GRAPHICS.DRAW_RECT(_x, _y, width / Distance, 0.0015, 0, 0, 255, 200)
+						GRAPHICS.DRAW_RECT(_x, _y + height / Distance, width / Distance, 0.0015, 0, 0, 255, 200)
+						GRAPHICS.DRAW_RECT(_x + width / 2 / Distance, _y + height / 2 / Distance , 0.001, height / Distance, 0, 0, 255, 200)
+						GRAPHICS.DRAW_RECT(_x - width / 2 / Distance, _y + height / 2 / Distance , 0.001, height / Distance, 0, 0, 255, 200)
+                        DrawText(PLAYER.GET_PLAYER_NAME(i), _x+0.007, _y, 0.2, 0.2)
+                        if Healthbox:is_enabled() then
+                        DrawText("Health: "..ENTITY.GET_ENTITY_HEALTH(Target), _x+0.007, _y + 0.01, 0.2, 0.2)
+                        end
+                        if Armourbox:is_enabled() then
+                        DrawText("Armour: "..PED.GET_PED_ARMOUR(Target), _x+0.007, _y + 0.02, 0.2, 0.2)
+                        end
+                    end
+                end
+            end 
+        end
+    end
+end);
+
+local SkeletonBox = MNDYPvP:add_checkbox("Skeleton")
+script.register_looped("SkeletonBox", function(script)
+    if NETWORK.NETWORK_IS_IN_SESSION() == true then
+    if SkeletonBox:is_enabled() then
+        Camcoords = CAM.GET_GAMEPLAY_CAM_COORD()
+        CAM.RENDER_SCRIPT_CAMS(true, false, 0, true)
+        for i = 0, 32 do
+                    ped = PLAYER.GET_PLAYER_PED(i)
+                    target1 = PLAYER.GET_PLAYER_PED(-1)
+                    pos = ENTITY.GET_ENTITY_COORDS(ped)
+                    pos2 = ENTITY.GET_ENTITY_COORDS(target1)
+                    if ENTITY.DOES_ENTITY_EXIST(ped) and ped ~= PLAYER.PLAYER_PED_ID() then
+                        ENTITY.SET_ENTITY_ALPHA(ped, 210, false)
+                    
+                        if MISC.GET_DISTANCE_BETWEEN_COORDS(pos2.x, pos2.y, pos2.z, pos.x,pos.y,pos.z, true) < 1000 then
+                            local LineOneBegin = PED.GET_PED_BONE_COORDS(ped, 0, 0.0, 0.0, 0.0)
+                            local LineOneEnd = PED.GET_PED_BONE_COORDS(ped, 39317, 0.0, 0.0, 0.0)
+                            GRAPHICS.DRAW_LINE(LineOneBegin.x, LineOneBegin.y, LineOneBegin.z, LineOneEnd.x, LineOneEnd.y, LineOneEnd.z, 0, 255, 0, 255)
+                            local LineTwoStart = PED.GET_PED_BONE_COORDS(ped, 39317, 0.0, 0.0, 0.0)
+                            local LineTwoEnd = PED.GET_PED_BONE_COORDS(ped, 31086, 0.0, 0.0, 0.0)
+                            GRAPHICS.DRAW_MARKER(28, LineTwoEnd, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.1, 0, 0, 255, 255)
+                            GRAPHICS.DRAW_LINE(LineTwoStart.x, LineTwoStart.y, LineTwoStart.z, LineTwoEnd.x, LineTwoEnd.y, LineTwoEnd.z,0, 255, 0, 255)
+                            local LineThreeStart = PED.GET_PED_BONE_COORDS(ped, 22711, 0.0, 0.0, 0.0)
+                            local LineThreeEnd = PED.GET_PED_BONE_COORDS(ped, 39317, 0.0, 0.0, 0.0)
+                            GRAPHICS.DRAW_LINE(LineThreeStart.x, LineThreeStart.y, LineThreeStart.z, LineThreeEnd.x, LineThreeEnd.y, LineThreeEnd.z,0, 255, 0, 255)
+                            local LineFourStart = PED.GET_PED_BONE_COORDS(ped, 22711, 0.0, 0.0, 0.0)
+                            local LineFourEnd = PED.GET_PED_BONE_COORDS(ped, 18905, 0.0, 0.0, 0.0)
+                            GRAPHICS.DRAW_LINE(LineFourStart.x, LineFourStart.y, LineFourStart.z, LineFourEnd.x, LineFourEnd.y, LineFourEnd.z,0, 255, 0, 255)
+                            local LineFiveStart = PED.GET_PED_BONE_COORDS(ped, 2992, 0.0, 0.0, 0.0)
+                            local LineFiveEnd = PED.GET_PED_BONE_COORDS(ped, 39317, 0.0, 0.0, 0.0)
+                            GRAPHICS.DRAW_LINE(LineFiveStart.x, LineFiveStart.y, LineFiveStart.z, LineFiveEnd.x, LineFiveEnd.y, LineFiveEnd.z,0, 255, 0, 255)
+                            local LineSixStart = PED.GET_PED_BONE_COORDS(ped, 2992, 0.0, 0.0, 0.0)
+                            local LineSixEnd = PED.GET_PED_BONE_COORDS(ped, 57005, 0.0, 0.0, 0.0)
+                            GRAPHICS.DRAW_LINE(LineSixStart.x, LineSixStart.y, LineSixStart.z, LineSixEnd.x, LineSixEnd.y, LineSixEnd.z,0, 255, 0, 255)
+                            local LineSevenStart = PED.GET_PED_BONE_COORDS(ped, 0, 0.0, 0.0, 0.0)
+                            local LineSevenEnd = PED.GET_PED_BONE_COORDS(ped, 16335, 0.0, 0.0, 0.0)
+                            GRAPHICS.DRAW_LINE(LineSevenStart.x, LineSevenStart.y, LineSevenStart.z, LineSevenEnd.x, LineSevenEnd.y, LineSevenEnd.z,0, 255, 0, 255)
+                            local LineEightStart = PED.GET_PED_BONE_COORDS(ped, 0, 0.0, 0.0, 0.0)
+                            local LineEightEnd = PED.GET_PED_BONE_COORDS(ped, 46078, 0.0, 0.0, 0.0)
+                            GRAPHICS.DRAW_LINE(LineEightStart.x, LineEightStart.y, LineEightStart.z, LineEightEnd.x, LineEightEnd.y, LineEightEnd.z,0, 255, 0, 255)
+                            local LineNineStart = PED.GET_PED_BONE_COORDS(ped, 52301, 0.0, 0.0, 0.0)
+                            local LineNineEnd = PED.GET_PED_BONE_COORDS(ped, 16335, 0.0, 0.0, 0.0)
+                            GRAPHICS.DRAW_LINE(LineNineStart.x, LineNineStart.y, LineNineStart.z, LineNineEnd.x, LineNineEnd.y, LineNineEnd.z,0, 255, 0, 255)
+                            local LineTenStart = PED.GET_PED_BONE_COORDS(ped, 14201, 0.0, 0.0, 0.0)
+                            local LineTenEnd = PED.GET_PED_BONE_COORDS(ped, 46078, 0.0, 0.0, 0.0)
+                            GRAPHICS.DRAW_LINE(LineTenStart.x, LineTenStart.y, LineTenStart.z, LineTenEnd.x, LineTenEnd.y, LineTenEnd.z,0, 255, 0, 255)
+            end 
+        end
+    end
+end
+end
+end);
+
+MNDYPvP:add_separator();
+MNDYPvP:add_text("Movement Assistance");
+MNDYPvP:add_separator();
+local checkbox = MNDYPvP:add_checkbox("Infinate Roll")
+script.register_looped("Infinate Roll", function(script)
+    if checkbox:is_enabled() then
+        for i = 0, 32 do
+            STATS.STAT_SET_INT(joaat("mp".. i .. "_shooting_ability"), 190, true);
+end
+end
+end);
+BugRoll = MNDYPvP:add_checkbox("Bug Roll")
+script.register_looped("Bug Roll", function(script)
+    if BugRoll:is_enabled() then
+        if PLAYER.IS_PLAYER_FREE_AIMING(PLAYER.PLAYER_ID()) and PAD.IS_CONTROL_PRESSED(0, 22) then
+            gui.show_warning(LuaName, "Executed Bug Roll")
+            script:sleep(500);
+            CurrentCoords = ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID(), false)
+            ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()),CurrentCoords.x+math.random(-4, 4), CurrentCoords.y+math.random(-2, 2), CurrentCoords.z- 1.0, false, false, true, true);
+
+end
+end
 end);
 
 MenuImGui:add_imgui(function()
@@ -613,14 +907,14 @@ MenuImGui:add_button("Unlock All Achivements", function()
 end);
 MenuImGui:add_button("Fill Snacks", function()
     gui.show_message(LuaName, "Snacks Filled");
-    STATS.STAT_SET_INT(joaat(MPX .. "NO_BOUGHT_YUM_SNACKS"), 25, true);
-    STATS.STAT_SET_INT(joaat(MPX .. "NO_BOUGHT_HEALTH_SNACKS"), 25, true);
-    STATS.STAT_SET_INT(joaat(MPX .. "NO_BOUGHT_EPIC_SNACKS"), 25, true);
-    STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_CHAMP_BOUGHT"), 25, true);
-    STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_ORANGE_BOUGHT"), 25, true);
-    STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_BOURGE_BOUGHT"), 25, true);
-    STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_SPRUNK_BOUGHT"), 25, true);
-    STATS.STAT_SET_INT(joaat(MPX .. "CIGARETTES_BOUGHT"), 25, true);
+    STATS.STAT_SET_INT(joaat(MPX() .. "NO_BOUGHT_YUM_SNACKS"), 25, true);
+    STATS.STAT_SET_INT(joaat(MPX() .. "NO_BOUGHT_HEALTH_SNACKS"), 25, true);
+    STATS.STAT_SET_INT(joaat(MPX() .. "NO_BOUGHT_EPIC_SNACKS"), 25, true);
+    STATS.STAT_SET_INT(joaat(MPX() .. "NUMBER_OF_CHAMP_BOUGHT"), 25, true);
+    STATS.STAT_SET_INT(joaat(MPX() .. "NUMBER_OF_ORANGE_BOUGHT"), 25, true);
+    STATS.STAT_SET_INT(joaat(MPX() .. "NUMBER_OF_BOURGE_BOUGHT"), 25, true);
+    STATS.STAT_SET_INT(joaat(MPX() .. "NUMBER_OF_SPRUNK_BOUGHT"), 25, true);
+    STATS.STAT_SET_INT(joaat(MPX() .. "CIGARETTES_BOUGHT"), 25, true);
 end);
 MenuImGui:add_sameline();
 MenuImGui:add_button("Unlimited Chip Purchase", function()
@@ -666,128 +960,16 @@ end);
 MenuImGui:add_button("Give 9999x Snacks", function()
     script.run_in_fiber(function(script)
         gui.show_message(LuaName, "Snacks given");
-        STATS.STAT_SET_INT(joaat(MPX .. "NO_BOUGHT_YUM_SNACKS"), 9999, true);
-        STATS.STAT_SET_INT(joaat(MPX .. "NO_BOUGHT_HEALTH_SNACKS"), 9999, true);
-        STATS.STAT_SET_INT(joaat(MPX .. "NO_BOUGHT_EPIC_SNACKS"), 9999, true);
-        STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_CHAMP_BOUGHT"), 9999, true);
-        STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_ORANGE_BOUGHT"), 9999, true);
-        STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_BOURGE_BOUGHT"), 9999, true);
-        STATS.STAT_SET_INT(joaat(MPX .. "NUMBER_OF_SPRUNK_BOUGHT"), 9999, true);
-        STATS.STAT_SET_INT(joaat(MPX .. "CIGARETTES_BOUGHT"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX() .. "NO_BOUGHT_YUM_SNACKS"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX() .. "NO_BOUGHT_HEALTH_SNACKS"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX() .. "NO_BOUGHT_EPIC_SNACKS"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX() .. "NUMBER_OF_CHAMP_BOUGHT"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX() .. "NUMBER_OF_ORANGE_BOUGHT"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX() .. "NUMBER_OF_BOURGE_BOUGHT"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX() .. "NUMBER_OF_SPRUNK_BOUGHT"), 9999, true);
+        STATS.STAT_SET_INT(joaat(MPX() .. "CIGARETTES_BOUGHT"), 9999, true);
 end)
 end);
-local checkbox = MenuImGui:add_checkbox("Infinate Roll")
-script.register_looped("Infinate Roll", function(script)
-    if checkbox:is_enabled() then
-        for i = 0, 32 do
-            STATS.STAT_SET_INT(joaat("mp".. i .. "_shooting_ability"), 190, true);
-end
-end
-end);
-MenuImGui:add_separator();
-MenuImGui:add_text("Aim Assistance");
-MenuImGui:add_separator();
-MenuImGui:add_imgui(function()
-    ImGui.PushItemWidth(100);
-    selected_Triggermode = ImGui.Combo("Triggerbot Mode", selected_Triggermode, triggermode_names, 2, 15)
-end)
-
-local checkbox = MenuImGui:add_checkbox("Triggerbot")
-script.register_looped("Triggerbot", function(script)
-    script:yield()
-    if checkbox:is_enabled() then
-        if selected_Triggermode == 0 then
-            local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
-            local dp, Entity = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(Yourself, Entity)
-            if dp then
-                if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) then
-                    ShootPlayer(Entity, math.random(0.0, 1))
-            end
-            end
-        end
-        if selected_Triggermode == 1 then
-        local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
-        local dp, Entity = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(Yourself, Entity)
-        if dp then
-            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and not PED.IS_PED_RAGDOLL(Entity) or PED.IS_PED_FALLING(Entity) then
-                ShootPlayer(Entity, 0.63)
-            end
-            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and PED.IS_PED_RAGDOLL(Entity) or PED.IS_PED_FALLING(Entity) then
-                ShootPlayer(Entity, 0)
-            end
-            if ENTITY.IS_ENTITY_A_PED(Entity) and not PED.IS_PED_DEAD_OR_DYING(Entity, 0) and PED.IS_PED_A_PLAYER(Entity) and PED.IS_PED_IN_ANY_VEHICLE(Entity) then
-                ShootPlayer(Entity, 0)
-            end
-        end
-        end
-    end
-end);
-function ShootPlayer(PLAYER, height)
-    script.run_in_fiber(function(script)
-        script:yield()
-    local head = PED.GET_PED_BONE_COORDS(PLAYER, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(PLAYER, 31086), 0, 0, 0)
-    PED.SET_PED_SHOOTS_AT_COORD(Yourselfpedid, head.x, head.y, head.z+height, 1)
-    script:sleep(1);
-    PED.SET_PED_SHOOTS_AT_COORD(Yourselfpedid, head.x, head.y, head.z+height, 1)
-    gui.show_warning(LuaName, "Shooting")
-end)
-end
-local checkbox = MenuImGui:add_checkbox("Draw Lines")
-script.register_looped("Draw Lines", function(script)
-    if checkbox:is_enabled() then
-        for i = 0, 32 do
-            if (i ~= localPlayerId) then
-                local player_id = i;
-                local target = PLAYER.GET_PLAYER_PED(player_id)
-                local target1 = PLAYER.GET_PLAYER_PED(-1)
-                if target ~= PLAYER.PLAYER_PED_ID() then
-                local pos = ENTITY.GET_ENTITY_COORDS(target)
-                local pos1 = ENTITY.GET_ENTITY_COORDS(target1)
-                if PED.IS_PED_IN_ANY_VEHICLE(target1) then 
-                    GRAPHICS.DRAW_LINE(pos.x, pos.y, pos.z, pos1.x, pos1.y, pos1.z+6.7, 0, 255, 50, 255)
-                else
-                    GRAPHICS.DRAW_LINE(pos.x, pos.y, pos.z, pos1.x, pos1.y, pos1.z+2.7, 0, 255, 50, 255)
-                end
-            end
-    end
-end
-end
-end);
-
-local checkbox = MenuImGui:add_checkbox("Draw Box")
-script.register_looped("Draw Box", function(script)
-    
-    if checkbox:is_enabled() then
-        for i = 0, 32 do
-                    local Target = PLAYER.GET_PLAYER_PED(i)
-                    local target1 = PLAYER.GET_PLAYER_PED(-1)
-                    bone = ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(Target, 31086)
-                    pos = PED.GET_PED_BONE_COORDS(Target, bone, 0.0, 0.0, 0.9)
-                    pos2 = ENTITY.GET_ENTITY_COORDS(target1)
-				if MISC.GET_DISTANCE_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos2.x,pos2.y,pos2.z, true) < 1000 then
-					if Target ~= PLAYER.PLAYER_PED_ID() and  ENTITY.IS_ENTITY_ON_SCREEN(Target) and not PED.IS_PED_DEAD_OR_DYING(Target) then
-                    
-						local Distance = MISC.GET_DISTANCE_BETWEEN_COORDS(pos.x,pos.y,pos.z, pos2.x,pos2.y,pos2.z, true) * 0.002 / 2
-	
-						retval, _x, _y = GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pos.x,pos.y,pos.z)
-	
-                        width = 0.00045
-						height = 0.0023
-	
-                        GRAPHICS.DRAW_RECT(_x, _y, width / Distance, 0.0015, 0, 0, 255, 200)
-						GRAPHICS.DRAW_RECT(_x, _y + height / Distance, width / Distance, 0.0015, 0, 0, 255, 200)
-						GRAPHICS.DRAW_RECT(_x + width / 2 / Distance, _y + height / 2 / Distance , 0.001, height / Distance, 0, 0, 255, 200)
-						GRAPHICS.DRAW_RECT(_x - width / 2 / Distance, _y + height / 2 / Distance , 0.001, height / Distance, 0, 0, 255, 200)
-                        DrawText(PLAYER.GET_PLAYER_NAME(i), _x+0.007, _y, 0.2, 0.2)
-                        DrawText("Health: "..ENTITY.GET_ENTITY_HEALTH(Target), _x+0.007, _y + 0.01, 0.2, 0.2)
-               
-						
-                end
-            end 
-        end
-    end
-end);
-
 MenuImGui:add_separator();
 MenuImGui:add_text("Computers");
 MenuImGui:add_separator();
@@ -799,6 +981,7 @@ end)
 MenuImGui:add_sameline();
 MenuImGui:add_button("Bail Office", function()
     script.run_in_fiber(function (script)
+        script:sleep(600)
         run_script("appBailOffice", 4592)
     end)
 end)
@@ -889,39 +1072,59 @@ script.register_looped("WeaponController", function(script)
     end
 end)
 
-NightClubMNDY:add_button("Refill Nightclub Popularity", function()
-    script.run_in_fiber(function(script)
-        STATS.STAT_SET_INT(joaat(MPX .. "CLUB_POPULARITY"), 1000, true);
-        gui.show_warning(LuaName, "Popularity set too 100%")
-    end)
-end);
-NightClubMNDY:add_separator();
-NightClubMNDY:add_text("Misc");
-NightClubMNDY:add_separator();
-local Checkbox = NightClubMNDY:add_checkbox("Auto Refill Loop (Safe)")
+
+SafeRefill = NightClubMNDY:add_checkbox("Auto Refil Safe")
 script.register_looped("Auto Refill Safe", function(script)
     script:yield()
-    if Checkbox:is_enabled() then
-        STATS.STAT_SET_INT(joaat(MPX .. "CLUB_POPULARITY"), 1000, true);
+    if SafeRefill:is_enabled() == true then
+        STATS.STAT_SET_INT(joaat(MPX() .. "CLUB_POPULARITY"), 1000, true);
         script:sleep(300)
-        STATS.STAT_SET_INT(joaat(MPX .. "CLUB_PAY_TIME_LEFT"), -1, true)
+        STATS.STAT_SET_INT(joaat(MPX() .. "CLUB_PAY_TIME_LEFT"), -1, true)
         script:sleep(2200)
     end
 end)
+NightClubMNDY:add_button("Refill Nightclub Popularity", function()
+    script.run_in_fiber(function(script)
+        STATS.STAT_SET_INT(joaat(MPX() .. "CLUB_POPULARITY"), 1000, true);
+        gui.show_warning(LuaName, "Popularity set too 100%")
+    end)
+end);
+NightClubMNDY:add_sameline();
+NightClubMNDY:add_button("Teleport to Safe", function()
+    script.run_in_fiber(function(script)
+        if is_player_in_interior(PLAYER.PLAYER_ID(), 271617) then
+        ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()),-1616.16, -3015.138, -74.205, false, false, true, true);
+        else
+            gui.show_warning(LuaName, "Not inside Nightclub")
+        end
+    end)
+end);
 
 
 NightClubMNDY:add_separator();
 NightClubMNDY:add_text("Stats");
 NightClubMNDY:add_separator();
+DisplayNClubStats = NightClubMNDY:add_checkbox("Display Stats")
+script.register_looped("Display Stats", function(script)
+    script:yield()
+    if DisplayNClubStats:is_enabled() == true then
+        ShowStats = true
+    else 
+        ShowStats = false
+    end
+end)
+
 NightClubMNDY:add_imgui(function()
-    local cashSupply   = stats.get_int(MPX.."CLUB_SAFE_CASH_VALUE")
-    local NightClubEarnings   = stats.get_int(MPX.."NIGHTCLUB_EARNINGS")
-    local PopularitySupply   = stats.get_int(MPX.."CLUB_POPULARITY")
-    local CLUBTimeLeft   = stats.get_int(MPX.."CLUB_PAY_TIME_LEFT")
+    if ShowStats == true then
+    local cashSupply   = stats.get_int(MPX().."CLUB_SAFE_CASH_VALUE")
+    local NightClubEarnings   = stats.get_int(MPX().."NIGHTCLUB_EARNINGS")
+    local PopularitySupply   = stats.get_int(MPX().."CLUB_POPULARITY")
+    local CLUBTimeLeft   = stats.get_int(MPX().."CLUB_PAY_TIME_LEFT")
     ImGui.Text("Current Popularity: "..(PopularitySupply/10).."/100%")
     ImGui.Text("Current Safe Amount: "..formatMoney(cashSupply))
     ImGui.Text("Earnings: "..formatMoney(NightClubEarnings))
     ImGui.Text("Time Till Next Pay: "..CLUBTimeLeft) 
+    end
 end)
 
 
@@ -953,11 +1156,22 @@ recoveryTab2:add_imgui(function()
         ImGui.EndChildFrame();
     end
 end)
+MNDYDebug:add_imgui(function()
+    playerlocation = ENTITY.GET_ENTITY_COORDS(Yourselfpedid)
+    ImGui.Text("Location: "..playerlocation.x.. " ".. playerlocation.y.." "..playerlocation.z)
+end)
+
+MNDYDebug:add_button("Get Interior ID", function()
+    script.run_in_fiber(function(script)
+        local player_interior_id = INTERIOR.GET_INTERIOR_FROM_ENTITY(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()))
+        gui.show_warning(LuaName, "ID:"..player_interior_id)
+    end)
+end);
 
 script.register_looped("tick", function(script)
 if DebugInfo then
     DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ MNDY Version: 1.69", 0.28, 0.00, 0.0, 0.2000)
-    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 06/07/24", 0.28, 0.012, 0.0, 0.2000)
+    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 20/07/24", 0.28, 0.012, 0.0, 0.2000)
 end
     end)
 ------=========================================================================------

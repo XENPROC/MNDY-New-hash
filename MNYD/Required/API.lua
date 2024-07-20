@@ -2,7 +2,7 @@ Yourself = PLAYER.PLAYER_ID();
 Yourselfpedid = PLAYER.PLAYER_PED_ID()
 YourselfPED = PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID());
 TargetID = network.get_selected_player()
-RPDropTime = 400;
+RPDropTime = 400; 
 MoneyDropTime = 800;
 SCEWait = 800;
 MNYDQuckCashTime = 800;
@@ -24,16 +24,20 @@ Watermark_Features = 0
 ShowAtAllTimes = false
 LuaName = "MNDY"
 gui.show_message("NewWay", LuaName.." Loaded")
-PlayersTab = gui.get_tab("GUI_TAB_PLAYER")
-StatisticsMNDY = gui.get_tab("MNDY Stats Editor")
-recoveryTab2 = gui.get_tab("MNDY Recovery")
-NightClubMNDY = gui.get_tab("MNDY NightClub")
-MenuImGui = gui.get_tab("MNDY Misc")
-AllPlayers = gui.get_tab("MNDY All Players")
+    PlayersTab = gui.get_tab("GUI_TAB_PLAYER")
+    MNDYTeleports = gui.get_tab("MNDY Teleports")
+    StatisticsMNDY = gui.get_tab("MNDY Stats Editor")
+    MNDYPvP = gui.get_tab("MNDY PvP")
+    recoveryTab2 = gui.get_tab("MNDY Recovery")
+    NightClubMNDY = gui.get_tab("MNDY NightClub")
+    MenuImGui = gui.get_tab("MNDY Misc")
+    AllPlayers = gui.get_tab("MNDY All Players")
+    MNDYDebug = gui.get_tab("MNDY Debug")
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
  --==MNDY==--
+
  function GetPlayerCount()
     return PLAYER.GET_NUMBER_OF_PLAYERS();
 end
@@ -440,3 +444,4 @@ function GetTint(ped,hash)
         return "Unkown"
     end
 end
+
