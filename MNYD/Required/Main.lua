@@ -3,6 +3,11 @@ value = 1 -- Default Button: INT
 textint = ""
 textFloat = ""
 textbool = ""
+InfinateRoll = false
+InfinateRollChanged = false
+BugRoll = false
+BugRollChanged = false
+
 Stattrueorfalse = {"false","true"}
 require("Required/API")
 
@@ -20,6 +25,11 @@ MNDYTeleports:add_separator();
 MNDYTeleports:add_button("Hanger", function()
     script.run_in_fiber(function(script)
             teleport_too_blip(569)
+    end)
+end);
+MNDYTeleports:add_button("NightClub", function()
+    script.run_in_fiber(function(script)
+            teleport_too_blip(614)
     end)
 end);
 StatisticsMNDY:add_separator();
@@ -130,6 +140,23 @@ function teleport_too_blip(blipNum)
 	end
 end
 
+function helpmarker(colorFlag, text, color) --Credits Xesdoog
+    ImGui.SameLine()
+    ImGui.TextDisabled("[?]")
+    if ImGui.IsItemHovered() then
+        ImGui.SetNextWindowBgAlpha(0.85)
+        ImGui.BeginTooltip()
+        if colorFlag == true then
+            coloredText(text, color)
+        else
+            ImGui.PushTextWrapPos(ImGui.GetFontSize() * 20)
+            ImGui.TextWrapped(text)
+            ImGui.PopTextWrapPos()
+        end
+        ImGui.EndTooltip()
+end
+end
+
 function Load_interior(interior_id)
     STREAMING.REQUEST_IPL(interior_id)
     local is_loaded = STREAMING.IS_IPL_ACTIVE(interior_id)
@@ -199,20 +226,26 @@ function drop_function(modelhash, pickupHash, amount, value)
     end)
 end
 
-function SCEdrop_function(hash, EventHash, value)
-    local SCEHash = hash
+function SCEdrop_function(EventHash, hash)
+    local Value = hash
     local Eventnum = EventHash
-    local HowManyThings = value
+    local HowManyThings = Value
     local player_id = network.get_selected_player()
-    network.trigger_script_event(player_id, { SCEHash, player_id, 1, Eventnum, 100, -3, 1, 1, 1 });
+    for i = 0, Value do
+    network.trigger_script_event(1 << network.get_selected_player(), {968269233, network.get_selected_player(), 1, Eventnum, i, -3, 1, 1});
     iconNotification("CHAR_DEFAULT", "CHAR_DEFAULT", true, 8, LuaName,
-        "Player: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. " is Searching")
+        "Player: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. " is Receiving The Drops")
+    end
 end
 
 local SCEdropTypes = {
-    ["Buried Stashes"] = { SCEHash = 968269233, Eventnum = 6 },
-    ["Treasure Chests"] = { SCEHash = 968269233, Eventnum = 2 },
-    ["Circo Loco"] = { SCEHash = 968269233, Eventnum = 4 },
+    ["Buried Stashes ($25,000 Per 1)"] = {Eventnum = 6, Value = 2}, -- Daily Collectable
+    ["Treasure Chests ($25,000 Per 1)"] = {Eventnum = 2, Value = 2}, -- Daily Collectable
+    ["Fast RP (Uses Circo Loco to give 1000 RP)"] = {Eventnum = 4, Value = 24},
+    ["Shipwreck ($25,000)"] = {Eventnum = 5, Value = 1},-- Daily Collectable
+    ["Junk Energy Skydives"] = {Eventnum = 10, Value = 10}, -- Collectable
+    ["Jack O' Lanterns ($5,000 Per 1)"] = {Eventnum = 8, Value = 10}, -- Daily Collectable
+    ["Hidden Cache's ($10,000 Per 1)"] = {Eventnum = 1, Value = 10}, -- Daily Collectable
 }
 
 --PROP_MONEY_PAPERCASE_01 -1803909274
@@ -250,9 +283,7 @@ for name, SCEdropInfo in pairs(SCEdropTypes) do
     script.register_looped(name, function(script)
         script:yield()
         if checkbox:is_enabled() then
-            SCEdrop_function(SCEdropInfo.SCEHash, SCEdropInfo.Eventnum, SCEdropInfo.value)
-            SCEdrop_function(SCEdropInfo.SCEHash, SCEdropInfo.Eventnum, SCEdropInfo.value)
-            SCEdrop_function(SCEdropInfo.SCEHash, SCEdropInfo.Eventnum, SCEdropInfo.value)
+            SCEdrop_function(SCEdropInfo.Eventnum, SCEdropInfo.Value)
         end
     end)
 end
@@ -512,8 +543,8 @@ MNDYPvP:add_imgui(function()
     ImGui.PushItemWidth(100);
     selected_Triggermode = ImGui.Combo("Triggerbot Mode", selected_Triggermode, triggermode_names, 2, 15)
 end)
-local Triggerbot = MNDYPvP:add_checkbox("Triggerbot")
 
+Triggerbot = MNDYPvP:add_checkbox("Triggerbot")
 
 script.register_looped("Triggerbot", function(script)
     script:yield()
@@ -568,7 +599,7 @@ script.register_looped("Draw Lines", function(script)
                                 local OnScreen, ScreenX, ScreenY = GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(TargetPos.x, TargetPos.y, TargetPos.z, 0)
                                 if ENTITY.IS_ENTITY_VISIBLE(TargetPed) then
                                     if OnScreen then
-                                        local TargetCoords = PED.GET_PED_BONE_COORDS(TargetPed, 31086, 0, 0, 0)
+                                        local TargetCoords = PED.GET_PED_BONE_COORDS(TargetPed, 0, 0, 0, 0)
                                         PED.SET_PED_SHOOTS_AT_COORD(PLAYER.PLAYER_PED_ID(), TargetCoords.x, TargetCoords.y, TargetCoords.z, 1)
                             end
                         end
@@ -613,7 +644,7 @@ script.register_looped("Draw Box", function(script)
     if NETWORK.NETWORK_IS_IN_SESSION() == true then
         if checkbox:is_enabled() then
             Camcoords = CAM.GET_GAMEPLAY_CAM_COORD()
-            CAM.RENDER_SCRIPT_CAMS(true, false, 0, true)
+            CAM.RENDER_SCRIPT_CAMS(false, false, 0, true)
             for i = 0, 32 do
                     local Target = PLAYER.GET_PLAYER_PED(i)
                     local target1 = PLAYER.GET_PLAYER_PED(-1)
@@ -704,26 +735,37 @@ end);
 MNDYPvP:add_separator();
 MNDYPvP:add_text("Movement Assistance");
 MNDYPvP:add_separator();
-local checkbox = MNDYPvP:add_checkbox("Infinate Roll")
-script.register_looped("Infinate Roll", function(script)
-    if checkbox:is_enabled() then
-        for i = 0, 32 do
-            STATS.STAT_SET_INT(joaat("mp".. i .. "_shooting_ability"), 190, true);
+MNDYPvP:add_imgui(function()
+    InfinateRoll, InfinateRollChanged = ImGui.Checkbox("Infinate Roll", InfinateRoll);
+    helpmarker(false, "Removes Roll wait and allows to be triggerd instantly")
+    script.run_in_fiber(function(script)
+    if InfinateRollChanged then
+        while InfinateRoll do 
+            script:sleep(0);
+            for i = 0, 32 do
+                STATS.STAT_SET_INT(joaat("mp".. i .. "_shooting_ability"), 190, true);
+    end
 end
 end
-end);
-BugRoll = MNDYPvP:add_checkbox("Bug Roll")
-script.register_looped("Bug Roll", function(script)
-    if BugRoll:is_enabled() then
-        if PLAYER.IS_PLAYER_FREE_AIMING(PLAYER.PLAYER_ID()) and PAD.IS_CONTROL_PRESSED(0, 22) then
-            gui.show_warning(LuaName, "Executed Bug Roll")
-            script:sleep(500);
-            CurrentCoords = ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID(), false)
-            ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()),CurrentCoords.x+math.random(-4, 4), CurrentCoords.y+math.random(-2, 2), CurrentCoords.z- 1.0, false, false, true, true);
-
+end)
+end)
+MNDYPvP:add_imgui(function()
+    BugRoll, BugRollChanged = ImGui.Checkbox("Bug Roll", BugRoll);
+    helpmarker(false, "Telports you Randomly at a short distance and cancel's your roll")
+    script.run_in_fiber(function(script)
+    if BugRollChanged then
+        while BugRoll do 
+            script:sleep(0);
+            if PLAYER.IS_PLAYER_FREE_AIMING(PLAYER.PLAYER_ID()) and PAD.IS_CONTROL_PRESSED(0, 22) then
+                gui.show_warning(LuaName, "Executed Bug Roll")
+                script:sleep(500);
+                CurrentCoords = ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID(), false)
+                ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()),CurrentCoords.x+math.random(-4, 4), CurrentCoords.y+math.random(-2, 2), CurrentCoords.z- 1.0, false, false, true, true);
+    end
 end
 end
-end);
+end)
+end)
 
 MenuImGui:add_imgui(function()
     ImGui.PushItemWidth(190);
@@ -991,6 +1033,7 @@ MenuImGui:add_button("Master Control Terminal", function()
         run_script("appArcadeBusinessHub", 1424)
     end)
 end)
+
 MenuImGui:add_separator();
 MenuImGui:add_text("Crosshair");
 MenuImGui:add_sameline();
@@ -1147,8 +1190,7 @@ for name, MNYDmonInfo in pairs(MNYDMoney) do
     end)
 end
 recoveryTab2:add_imgui(function()
-    if ImGui.BeginChildFrame(80, 250, 80, ImGuiWindowFlags.NoBackground) then
-        ImGui.SameLine((80) - (10));
+    if ImGui.BeginChildFrame(80, 650, 80, ImGuiWindowFlags.NoBackground) then
         ImGui.TextColored(1, 0, 0, 1, "Riskier Options");
         if ImGui.Button("15 Million") then
             MoneyTransactions(joaat("SERVICE_EARN_JOB_BONUS"), 15000000)
@@ -1168,10 +1210,115 @@ MNDYDebug:add_button("Get Interior ID", function()
     end)
 end);
 
+MNDYDebug:add_button("Reset Collectables", function()
+    script.run_in_fiber(function(script)
+        set_daily_collectibles_state(false)
+        gui.show_warning(LuaName, "Switching Sessions")
+        script:sleep(800);
+        globals.set_int(1574589, 1)
+        script:sleep(300);
+        globals.set_int(1574589, 0)
+    end)
+end);
+
+function set_daily_collectibles_state(state) -- Credit ShinyWasabi
+        stats.set_packed_stat_bool(36628, state) -- G's Cache
+        stats.set_packed_stat_bool(36657, state) -- Stash House
+        stats.set_packed_stat_bool(31734, state) -- Shipwreck
+        stats.set_packed_stat_bool(30297, state) -- Hidden Cache 1
+        stats.set_packed_stat_bool(30298, state) -- Hidden Cache 2
+        stats.set_packed_stat_bool(30299, state) -- Hidden Cache 3
+        stats.set_packed_stat_bool(30300, state) -- Hidden Cache 4
+        stats.set_packed_stat_bool(30301, state) -- Hidden Cache 5
+        stats.set_packed_stat_bool(30302, state) -- Hidden Cache 6
+        stats.set_packed_stat_bool(30303, state) -- Hidden Cache 7
+        stats.set_packed_stat_bool(30304, state) -- Hidden Cache 8
+        stats.set_packed_stat_bool(30305, state) -- Hidden Cache 9
+        stats.set_packed_stat_bool(30306, state) -- Hidden Cache 10
+        stats.set_packed_stat_bool(30307, state) -- Treasure Chest 1
+        stats.set_packed_stat_bool(30308, state) -- Treasure Chest 2
+        stats.set_packed_stat_bool(25522, state) -- Buried Stash 1
+        stats.set_packed_stat_bool(25523, state) -- Buried Stash 2
+        stats.set_packed_stat_bool(42252, state) -- LS Tag 1
+        stats.set_packed_stat_bool(42253, state) -- LS Tag 2
+        stats.set_packed_stat_bool(42254, state) -- LS Tag 3
+        stats.set_packed_stat_bool(42255, state) -- LS Tag 4
+        stats.set_packed_stat_bool(42256, state) -- LS Tag 5
+        stats.set_packed_stat_bool(42269, state) -- Madrazo Hit
+        stats.set_packed_stat_bool(42059, state) -- Shoot Animals Photography 1
+        stats.set_packed_stat_bool(42060, state) -- Shoot Animals Photography 2
+        stats.set_packed_stat_bool(42061, state) -- Shoot Animals Photography 3
+
+-- Movie Props:
+        stats.set_packed_stat_bool(30230, state)
+        stats.set_packed_stat_bool(30231, state)
+        stats.set_packed_stat_bool(30232, state)
+        stats.set_packed_stat_bool(30233, state)
+        stats.set_packed_stat_bool(30234, state) 
+        stats.set_packed_stat_bool(30235, state)
+        stats.set_packed_stat_bool(30236, state) 
+        stats.set_packed_stat_bool(30237, state) 
+        stats.set_packed_stat_bool(30238, state) 
+        stats.set_packed_stat_bool(30239, state)
+
+
+-- Signal Jammers
+        stats.set_packed_stat_bool(28099, state)
+        stats.set_packed_stat_bool(28100, state)
+        stats.set_packed_stat_bool(28101, state)
+        stats.set_packed_stat_bool(28102, state)
+        stats.set_packed_stat_bool(28103, state) 
+        stats.set_packed_stat_bool(28104, state)
+        stats.set_packed_stat_bool(28105, state) 
+        stats.set_packed_stat_bool(28106, state) 
+        stats.set_packed_stat_bool(28107, state) 
+        stats.set_packed_stat_bool(28108, state)
+        stats.set_packed_stat_bool(28109, state)
+        stats.set_packed_stat_bool(28110, state)
+        stats.set_packed_stat_bool(28111, state)
+        stats.set_packed_stat_bool(28112, state)
+        stats.set_packed_stat_bool(28113, state) 
+        stats.set_packed_stat_bool(28114, state)
+        stats.set_packed_stat_bool(28115, state) 
+        stats.set_packed_stat_bool(28116, state) 
+        stats.set_packed_stat_bool(28117, state) 
+        stats.set_packed_stat_bool(28118, state)
+        stats.set_packed_stat_bool(28019, state)
+        stats.set_packed_stat_bool(28120, state)
+        stats.set_packed_stat_bool(28121, state)
+        stats.set_packed_stat_bool(28122, state)
+        stats.set_packed_stat_bool(28123, state) 
+        stats.set_packed_stat_bool(28124, state)
+        stats.set_packed_stat_bool(28125, state) 
+        stats.set_packed_stat_bool(28126, state) 
+        stats.set_packed_stat_bool(28127, state) 
+        stats.set_packed_stat_bool(28128, state)
+        stats.set_packed_stat_bool(28129, state) 
+        stats.set_packed_stat_bool(28130, state)
+        stats.set_packed_stat_bool(28131, state)
+        stats.set_packed_stat_bool(28132, state)
+        stats.set_packed_stat_bool(28133, state) 
+        stats.set_packed_stat_bool(28134, state)
+        stats.set_packed_stat_bool(28135, state) 
+        stats.set_packed_stat_bool(28136, state) 
+        stats.set_packed_stat_bool(28137, state) 
+        stats.set_packed_stat_bool(28138, state)
+        stats.set_packed_stat_bool(28039, state)
+        stats.set_packed_stat_bool(28140, state)
+        stats.set_packed_stat_bool(28141, state)
+        stats.set_packed_stat_bool(28142, state)
+        stats.set_packed_stat_bool(28143, state) 
+        stats.set_packed_stat_bool(28144, state)
+        stats.set_packed_stat_bool(28145, state) 
+        stats.set_packed_stat_bool(28146, state) 
+        stats.set_packed_stat_bool(28147, state) 
+        stats.set_packed_stat_bool(28148, state)
+    end
+
 script.register_looped("tick", function(script)
 if DebugInfo then
     DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ MNDY Version: 1.69", 0.28, 0.00, 0.0, 0.2000)
-    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 20/07/24", 0.28, 0.012, 0.0, 0.2000)
+    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 21/07/24", 0.28, 0.012, 0.0, 0.2000)
 end
     end)
 ------=========================================================================------
