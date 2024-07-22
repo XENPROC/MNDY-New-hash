@@ -232,9 +232,8 @@ function SCEdrop_function(EventHash, hash)
     local HowManyThings = Value
     local player_id = network.get_selected_player()
     for i = 0, Value do
-    network.trigger_script_event(1 << network.get_selected_player(), {968269233, network.get_selected_player(), 1, Eventnum, i, -3, 1, 1});
-    iconNotification("CHAR_DEFAULT", "CHAR_DEFAULT", true, 8, LuaName,
-        "Player: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. " is Receiving The Drops")
+    network.trigger_script_event(1 << network.get_selected_player(), {968269233, network.get_selected_player(), 1, Eventnum, i, -3, 1, 1, 1, 1, 1, 1});
+    iconNotification("CHAR_DEFAULT", "CHAR_DEFAULT", true, 8, LuaName, "Player: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. " is Receiving The Drops")
     end
 end
 
@@ -246,6 +245,9 @@ local SCEdropTypes = {
     ["Junk Energy Skydives"] = {Eventnum = 10, Value = 10}, -- Collectable
     ["Jack O' Lanterns ($5,000 Per 1)"] = {Eventnum = 8, Value = 10}, -- Daily Collectable
     ["Hidden Cache's ($10,000 Per 1)"] = {Eventnum = 1, Value = 10}, -- Daily Collectable
+    ["LS Tags ($15,000 Per 1)"] = {Eventnum = 19, Value = 5}, -- Collectable
+    ["Snowmen ($5,000 Per 1)"] = {Eventnum = 16, Value = 25}, -- Collectable
+    ["Collect G's Cache"] = {Eventnum = 17, Value = 1}, -- Collectable
 }
 
 --PROP_MONEY_PAPERCASE_01 -1803909274
@@ -254,8 +256,6 @@ local SCEdropTypes = {
 --PICKUP_MONEY_CASE 0x1E9A99F8
 
 local dropTypes = {
-    ["2k Drop"] = { model = joaat("prop_money_bag_01"), pickup = joaat("PICKUP_MONEY_CASE"), value = 2500 },
-    ["2k Drop (2)"] = { model = 1203231469, pickup = joaat("PICKUP_MONEY_MED_BAG"), value = 10000 },
     ["Monkey Collectable"] = { model = joaat("vw_prop_vw_colle_pogo"), pickup = joaat("PICKUP_CUSTOM_SCRIPT"), value = 0 },
     ["Beasts Collectable"] = { model = joaat("vw_prop_vw_colle_beast"), pickup = joaat("PICKUP_CUSTOM_SCRIPT"), value = 0 },
     ["Impotent Rage Collectable"] = { model = joaat("vw_prop_vw_colle_imporage"), pickup = joaat("PICKUP_CUSTOM_SCRIPT"), value = 0 },
@@ -277,7 +277,7 @@ for name, dropInfo in pairs(dropTypes) do
 end
 
 PlayersTab:add_separator();
-PlayersTab:add_text("SCE Drops");
+PlayersTab:add_text("TSE Drops");
 for name, SCEdropInfo in pairs(SCEdropTypes) do
     local checkbox = PlayersTab:add_checkbox(name)
     script.register_looped(name, function(script)
@@ -1318,7 +1318,7 @@ function set_daily_collectibles_state(state) -- Credit ShinyWasabi
 script.register_looped("tick", function(script)
 if DebugInfo then
     DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ MNDY Version: 1.69", 0.28, 0.00, 0.0, 0.2000)
-    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 21/07/24", 0.28, 0.012, 0.0, 0.2000)
+    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 22/07/24 ", 0.28, 0.012, 0.0, 0.2000)
 end
     end)
 ------=========================================================================------
