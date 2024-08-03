@@ -90,15 +90,39 @@ end)
 --======================================================================-
 --===============================Functions==============================-
 --======================================================================-
-MNYDMNYYDWWJ8WE8 = 4537311;
+TransactionGlobal = 4537311; --1.69
 function MoneyTransactions(hash, amount)
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 1, 2147483646);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 7, 2147483647);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 6, 0);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 5, 0);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 3, hash);
-	GlobalInt(MNYDMNYYDWWJ8WE8 + 2, amount);
-	GlobalInt(MNYDMNYYDWWJ8WE8, 2);
+	GlobalInt(TransactionGlobal + 1, 2147483646);
+	GlobalInt(TransactionGlobal + 7, 2147483647);
+	GlobalInt(TransactionGlobal + 6, 0);
+	GlobalInt(TransactionGlobal + 5, 0);
+	GlobalInt(TransactionGlobal + 3, hash);
+	GlobalInt(TransactionGlobal + 2, amount);
+	GlobalInt(TransactionGlobal, 2);
+end
+
+function DeleteEntity(Entity)
+        gui.show_warning(LuaName, "Deleting Entity")
+        ENTITY.DETACH_ENTITY(Entity, true, true)
+        ENTITY.SET_ENTITY_VISIBLE(Entity, false, false)
+        NETWORK.NETWORK_SET_ENTITY_ONLY_EXISTS_FOR_PARTICIPANTS(Entity, true)
+        ENTITY.SET_ENTITY_COORDS_NO_OFFSET(Entity, 0.0, 0.0, -1000.0, false, false, false)
+        ENTITY.SET_ENTITY_COLLISION(Entity, false, false)
+        ENTITY.SET_ENTITY_AS_MISSION_ENTITY(Entity, true, true)
+        ENTITY.SET_ENTITY_AS_NO_LONGER_NEEDED(Entity)
+        ENTITY.DELETE_ENTITY(Entity)
+end
+
+
+function DeleteObject(Object)
+    ENTITY.DETACH_ENTITY(Object, true, true)
+    ENTITY.SET_ENTITY_VISIBLE(Object, false, false)
+    NETWORK.NETWORK_SET_ENTITY_ONLY_EXISTS_FOR_PARTICIPANTS(Object, true)
+    ENTITY.SET_ENTITY_COORDS_NO_OFFSET(Object, 0.0, 0.0, -1000.0, false, false, false)
+    ENTITY.SET_ENTITY_COLLISION(Object, false, false)
+    ENTITY.SET_ENTITY_AS_MISSION_ENTITY(Object, true, true)
+    ENTITY.SET_ENTITY_AS_NO_LONGER_NEEDED(Object)
+    OBJECT.DELETE_OBJECT(Object)
 end
 
 function formatMoney(value)
@@ -108,7 +132,7 @@ function formatMoney(value)
 
 function ShootAt()
     local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
-    local weapHash = 177293209
+    local weapHash = -619010992
     local pedcoords = ENTITY.GET_ENTITY_COORDS(player_id, false)
     MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS_IGNORE_ENTITY(pedcoords.x, pedcoords.y, pedcoords.z + 5.5, pedcoords.x, pedcoords.y, pedcoords.z+0.1, 1000, true, weapHash, YourselfPED, true, true, -1, player_id, true)
 end
@@ -186,10 +210,6 @@ local function MPX() ---Credits L7NEG
 	end
 end
 
-------=========================================================================------
-------=========================================================================------
-------=========================================================================------
-
 function run_script(name, Bit)
 	script.run_in_fiber(function(runscript)
 		SCRIPT.REQUEST_SCRIPT(name);
@@ -200,6 +220,9 @@ function run_script(name, Bit)
 		SCRIPT.SET_SCRIPT_AS_NO_LONGER_NEEDED(name);
 	end);
 end
+------=========================================================================------
+------=========================================================================------
+------=========================================================================------
 
 function drop_function(modelhash, pickupHash, amount, value)
     script.run_in_fiber(function(script)
@@ -215,8 +238,7 @@ function drop_function(modelhash, pickupHash, amount, value)
         end
         if STREAMING.HAS_MODEL_LOADED(model) then
             for i = 1, amount do
-                local objectIdSpawned = OBJECT.CREATE_AMBIENT_PICKUP(pickup, coords.x, coords.y, coords.z + 2.2, 0,
-                    money_value, model, true, false)
+                local objectIdSpawned = OBJECT.CREATE_AMBIENT_PICKUP(pickup, coords.x, coords.y, coords.z + 2.2, 0, money_value, model, true, false)
                 local net_id = NETWORK.OBJ_TO_NET(objectIdSpawned)
                 NETWORK.SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(objectIdSpawned, true)
             end
@@ -237,6 +259,7 @@ function SCEdrop_function(EventHash, hash)
     end
 end
 
+
 local SCEdropTypes = {
     ["Buried Stashes ($25,000 Per 1)"] = {Eventnum = 6, Value = 2}, -- Daily Collectable
     ["Treasure Chests ($25,000 Per 1)"] = {Eventnum = 2, Value = 2}, -- Daily Collectable
@@ -244,16 +267,13 @@ local SCEdropTypes = {
     ["Shipwreck ($25,000)"] = {Eventnum = 5, Value = 1},-- Daily Collectable
     ["Junk Energy Skydives"] = {Eventnum = 10, Value = 10}, -- Collectable
     ["Jack O' Lanterns ($5,000 Per 1)"] = {Eventnum = 8, Value = 10}, -- Daily Collectable
+    ["Radio Stations ($Random per 1)"] = {Eventnum = 3, Value = 10}, -- Daily Collectable
     ["Hidden Cache's ($10,000 Per 1)"] = {Eventnum = 1, Value = 10}, -- Daily Collectable
     ["LS Tags ($15,000 Per 1)"] = {Eventnum = 19, Value = 5}, -- Collectable
     ["Snowmen ($5,000 Per 1)"] = {Eventnum = 16, Value = 25}, -- Collectable
     ["Collect G's Cache"] = {Eventnum = 17, Value = 1}, -- Collectable
 }
 
---PROP_MONEY_PAPERCASE_01 -1803909274
---PROP_MONEY_PAPERBAG_01 -1666779307
---PROP_MONEY_BAG_01 0x113FD533
---PICKUP_MONEY_CASE 0x1E9A99F8
 
 local dropTypes = {
     ["Monkey Collectable"] = { model = joaat("vw_prop_vw_colle_pogo"), pickup = joaat("PICKUP_CUSTOM_SCRIPT"), value = 0 },
@@ -270,7 +290,7 @@ for name, dropInfo in pairs(dropTypes) do
     script.register_looped(name, function(script)
         script:yield()
         if checkbox:is_enabled() then
-            drop_function(dropInfo.model, dropInfo.pickup, 10, dropInfo.value)
+            drop_function(dropInfo.model, dropInfo.pickup, 4, dropInfo.value)
             script:sleep(RPDropTime)
         end
     end)
@@ -288,29 +308,37 @@ for name, SCEdropInfo in pairs(SCEdropTypes) do
     end)
 end
 
-
 PlayersTab:add_separator();
 PlayersTab:add_text("Toxic/Griefing");
 PlayersTab:add_button("Fragment Crash", function()
     script.run_in_fiber(function(script)
-        local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(network.get_selected_player()), false)
-        gui.show_message(LuaName, "Attempting to Crash: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. " ");
+        gui.show_message(LuaName, "Attempting to Crash: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. "\nMethod: Fragment crash ");
         hash1 = joaat("prop_fragtest_cnst_04")
         hash2 = joaat("prop_fragtest_cnst_02")
         hash3 = joaat("prop_fragtest_cnst_08")
-        local object = CreateWorldObject(hash1, coords.x, coords.y, coords.z)
-        DeleteEntity(object)
-        local object2 = CreateWorldObject(hash2, coords.x, coords.y, coords.z)
-        DeleteEntity(object2)
-        local object3 = CreateWorldObject(hash2, coords.x, coords.y, coords.z)
-        DeleteEntity(object3)
-        local object4 = CreateWorldObject(hash1, coords.x, coords.y, coords.z)
-        DeleteEntity(object4)
-        local object5 = CreateWorldObject(hash2, coords.x, coords.y, coords.z)
-        DeleteEntity(object5)
-        local object6 = CreateWorldObject(hash2, coords.x, coords.y, coords.z)
-        DeleteEntity(object6)
-        log.warning("You attempted to crash: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. " ");
+        for i = 0, 5 do 
+            local coords = ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(network.get_selected_player()), false)
+        local object = OBJECT.CREATE_OBJECT(hash1, coords.x, coords.y, coords.z, true, false, false)
+        OBJECT.BREAK_OBJECT_FRAGMENT_CHILD(object, 1, false)
+        local object2 = OBJECT.CREATE_OBJECT(hash2, coords.x, coords.y, coords.z, true, false, false)
+        OBJECT.BREAK_OBJECT_FRAGMENT_CHILD(object2, 1, false)
+        local object3 = OBJECT.CREATE_OBJECT(hash3, coords.x, coords.y, coords.z, true, false, false)
+        OBJECT.BREAK_OBJECT_FRAGMENT_CHILD(object3, 1, false)
+        local object4 = OBJECT.CREATE_OBJECT(hash1, coords.x, coords.y, coords.z, true, false, false)
+        OBJECT.BREAK_OBJECT_FRAGMENT_CHILD(object4, 1, false)
+        local object5 = OBJECT.CREATE_OBJECT(hash2, coords.x, coords.y, coords.z, true, false, false)
+        OBJECT.BREAK_OBJECT_FRAGMENT_CHILD(object5, 1, false)
+        local object6 = OBJECT.CREATE_OBJECT(hash3, coords.x, coords.y, coords.z, true, false, false)
+        OBJECT.BREAK_OBJECT_FRAGMENT_CHILD(object6, 1, false)
+        script:sleep(200);
+        DeleteObject(object)
+        DeleteObject(object2)
+        DeleteObject(object3)
+        DeleteObject(object4)
+        DeleteObject(object5)
+        DeleteObject(object6)
+        end
+        log.warning("You attempted to crash: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. " Crash Method: Fragment Crash");
     end)
 end);
 
@@ -320,6 +348,15 @@ PlayersTab:add_button("Rage Shoot", function()
         end)
 end);
 PlayersTab:add_sameline();
+local checkbox = PlayersTab:add_checkbox("Rage Shoot Loop")
+script.register_looped("RageShoot", function(script)
+    script:yield()
+    if checkbox:is_enabled() then
+        ShootAt()
+        script:sleep(1);
+    end
+end)
+
 PlayersTab:add_button("Drop Vehicle on Player", function()
     script.run_in_fiber(function(script)
         DropVehicleOnPlayer("adder")
@@ -508,8 +545,6 @@ script.register_looped("Slow Vehicle", function(script)
         end
     end
 end)
-
-
 
 AllPlayers:add_separator();
 AllPlayers:add_text("Teleports");
@@ -767,6 +802,8 @@ end
 end)
 end)
 
+
+
 MenuImGui:add_imgui(function()
     ImGui.PushItemWidth(190);
     Watermark_Features = ImGui.Combo("Watermark Names", Watermark_Features, Watermark_Featnames,
@@ -940,13 +977,16 @@ script.register_looped("Force World Populate", function(script)
 end)
 MenuImGui:add_sameline();
 MenuImGui:add_button("Unlock All Achivements", function()
-    script.run_in_fiber(function(script)
-        for i = 0, 77 do
-            PLAYER.GIVE_ACHIEVEMENT_TO_PLAYER(i);
-            gui.show_warning(LuaName, "Unlocking All Achivements")
-        end
+            script.run_in_fiber(function(script)
+                for i = 0, 77 do
+                    script:sleep(200)
+                    PLAYER.GIVE_ACHIEVEMENT_TO_PLAYER(i);
+                if i == 77 then
+                    gui.show_message("Achivements", "Unlocked 77 Achivements")
+                end
+            end
+        end)
     end)
-end);
 MenuImGui:add_button("Fill Snacks", function()
     gui.show_message(LuaName, "Snacks Filled");
     STATS.STAT_SET_INT(joaat(MPX() .. "NO_BOUGHT_YUM_SNACKS"), 25, true);
@@ -1012,6 +1052,14 @@ MenuImGui:add_button("Give 9999x Snacks", function()
         STATS.STAT_SET_INT(joaat(MPX() .. "CIGARETTES_BOUGHT"), 9999, true);
 end)
 end);
+MenuImGui:add_imgui(function()
+    --ImGui.PushItemWidth(110);
+    if ImGui.Button("Remove Orbital Cooldown") then
+        STATS.STAT_SET_INT(joaat(MPX() .. "ORBITAL_CANNON_COOLDOWN"), 0, true);
+        iconNotification("CHAR_LESTER", "CHAR_LESTER", true, 1, LuaName, "Cooldown Removed");
+    end
+    helpmarker(false, "Removes Cooldown to instantly Fire again")
+end)
 MenuImGui:add_separator();
 MenuImGui:add_text("Computers");
 MenuImGui:add_separator();
@@ -1027,6 +1075,7 @@ MenuImGui:add_button("Bail Office", function()
         run_script("appBailOffice", 4592)
     end)
 end)
+
 MenuImGui:add_sameline();
 MenuImGui:add_button("Master Control Terminal", function()
     script.run_in_fiber(function (script)
@@ -1144,6 +1193,7 @@ NightClubMNDY:add_button("Teleport to Safe", function()
 end);
 
 
+
 NightClubMNDY:add_separator();
 NightClubMNDY:add_text("Stats");
 NightClubMNDY:add_separator();
@@ -1198,6 +1248,7 @@ recoveryTab2:add_imgui(function()
         ImGui.EndChildFrame();
     end
 end)
+
 MNDYDebug:add_imgui(function()
     playerlocation = ENTITY.GET_ENTITY_COORDS(Yourselfpedid)
     ImGui.Text("Location: "..playerlocation.x.. " ".. playerlocation.y.." "..playerlocation.z)

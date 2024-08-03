@@ -2,8 +2,8 @@ Yourself = PLAYER.PLAYER_ID();
 Yourselfpedid = PLAYER.PLAYER_PED_ID()
 YourselfPED = PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID());
 TargetID = network.get_selected_player()
-RPDropTime = 400; 
-MoneyDropTime = 800;
+RPDropTime = 500; 
+MoneyDropTime = 800; 
 SCEWait = 800;
 MNYDQuckCashTime = 800;
 TransferBank2 = false
@@ -33,7 +33,6 @@ gui.show_message("NewWay", LuaName.." Loaded")
     MenuImGui = gui.get_tab("MNDY Misc")
     AllPlayers = gui.get_tab("MNDY All Players")
     MNDYDebug = gui.get_tab("MNDY Debug")
-
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
  --==MNDY==--
@@ -46,9 +45,8 @@ function GlobalInt(address, value)
 	globals.set_int(address, value);
 end
 
-function CreateWorldObject(hash, xcoord, ycoord, zcoord)
-    OBJECT.CREATE_OBJECT(hash, xcoord, ycoord, zcoord, true, false, false)
-    OBJECT.BREAK_OBJECT_FRAGMENT_CHILD(hash, 1, false)
+function SET_BIT(address, offset)
+	MISC.SET_BIT(address, offset)
 end
 
 function ForceControl(entity)
@@ -79,19 +77,6 @@ function DeleteVehicle(Vehicle)
     end
 end
 
-function DeleteEntity(Entity)
-    if ENTITY.DOES_ENTITY_EXIST(Entity) then
-        ENTITY.DETACH_ENTITY(Entity, true, true)
-        ENTITY.SET_ENTITY_VISIBLE(Entity, false, false)
-        NETWORK.NETWORK_SET_ENTITY_ONLY_EXISTS_FOR_PARTICIPANTS(Entity, true)
-        ENTITY.SET_ENTITY_COORDS_NO_OFFSET(Entity, 0.0, 0.0, -1000.0, false, false, false)
-        ENTITY.SET_ENTITY_COLLISION(Entity, false, false)
-        ENTITY.SET_ENTITY_AS_MISSION_ENTITY(Entity, true, true)
-        ENTITY.SET_ENTITY_AS_NO_LONGER_NEEDED(Entity)
-        ENTITY.DELETE_ENTITY(Entity)
-    end
-end
-
 function ScriptHostName()
 	return PLAYER.GET_PLAYER_NAME(NETWORK.NETWORK_GET_HOST_OF_SCRIPT("freemode", -1, 0))
 end
@@ -101,7 +86,17 @@ function iconNotification(icon, icon, flash, icon2, text1, text)
 	HUD.END_TEXT_COMMAND_THEFEED_POST_MESSAGETEXT(icon, icon, false, icon2, text1, text);
 end
 
-
+function DeleteObject(Object)
+    gui.show_warning(LuaName, "Deleting Object")
+    ENTITY.DETACH_ENTITY(Object, true, true)
+    ENTITY.SET_ENTITY_VISIBLE(Object, false, false)
+    NETWORK.NETWORK_SET_ENTITY_ONLY_EXISTS_FOR_PARTICIPANTS(Object, true)
+    ENTITY.SET_ENTITY_COORDS_NO_OFFSET(Object, 0.0, 0.0, -1000.0, false, false, false)
+    ENTITY.SET_ENTITY_COLLISION(Object, false, false)
+    ENTITY.SET_ENTITY_AS_MISSION_ENTITY(Object, true, true)
+    ENTITY.SET_ENTITY_AS_NO_LONGER_NEEDED(Object)
+    OBJECT.DELETE_OBJECT(Object)
+end
 
 local textureDictTextures = {
     mpweaponscommon = {
