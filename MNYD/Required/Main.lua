@@ -11,6 +11,17 @@ BugRollChanged = false
 Stattrueorfalse = {"false","true"}
 require("Required/API")
 
+CAR_INSURANCE = 1655503526
+SEND_BASIC_TEXT = -1773335296
+CREATE_FMC_INVITE = 606464409
+INVITE_TO_APARTMENT = 996099702
+SKYDIVING_ALL_JUMPS_GOLD = -1235428989
+SKYDIVING_ALL_JUMPS_COMPLETED = -347033775
+SKYDIVING_JUMP_COMPLETED = 1916113629
+COLLECTIBLE_COLLECTED = 968269233
+LEAVE_VEHICLE = -503325966
+BOSS_SHOULD_LAUNCH_WVM = 259469385
+
 MNDYTeleports:add_separator();
 MNDYTeleports:add_text("Special Teleports");
 MNDYTeleports:add_separator();
@@ -151,6 +162,17 @@ function DropVehicleOnPlayer(name)
     end)
 end
 
+function FlingVehicle()
+    local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
+    script.run_in_fiber(function(script)
+        if ForceControl(PED.GET_VEHICLE_PED_IS_USING(player_id)) then
+            ENTITY.SET_ENTITY_VELOCITY(PED.GET_VEHICLE_PED_IS_USING(player_id), 0, 0, -180);
+			VEHICLE.SET_VEHICLE_FORWARD_SPEED(PED.GET_VEHICLE_PED_IS_USING(player_id), math.random(-10000, 10000))
+			ENTITY.APPLY_FORCE_TO_ENTITY(PED.GET_VEHICLE_PED_IS_USING(player_id), 3, math.random(-4, 4), math.random(-4, 4), math.random(-80, 60), 0, 0, 0, true, true)
+		end
+    end)
+end
+
 function is_player_in_interior(player_id, interior_id)
     local player_ped = PLAYER.GET_PLAYER_PED(player_id)
     local player_interior_id = INTERIOR.GET_INTERIOR_FROM_ENTITY(player_ped)
@@ -254,7 +276,7 @@ function SCEdrop_function(EventHash, hash)
     local HowManyThings = Value
     local player_id = network.get_selected_player()
     for i = 0, Value do
-    network.trigger_script_event(1 << network.get_selected_player(), {968269233, network.get_selected_player(), 1, Eventnum, i, -3, 1, 1, 1, 1, 1, 1});
+    network.trigger_script_event(1 << network.get_selected_player(), {COLLECTIBLE_COLLECTED, network.get_selected_player(), 1, Eventnum, i, -3, 1, 1, 1, 1, 1, 1});
     iconNotification("CHAR_DEFAULT", "CHAR_DEFAULT", true, 8, LuaName, "Player: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. " is Receiving The Drops")
     end
 end
@@ -308,6 +330,64 @@ for name, SCEdropInfo in pairs(SCEdropTypes) do
     end)
 end
 
+PlayersTab:add_button("Big Money Unlock", function()
+    script.run_in_fiber(function(script)
+        for i = 1, 10 do
+        network.trigger_script_event(1 << network.get_selected_player(), {SKYDIVING_JUMP_COMPLETED, network.get_selected_player(), 1, 1, 2000, 1});
+        network.trigger_script_event(1 << network.get_selected_player(), {SKYDIVING_ALL_JUMPS_COMPLETED, network.get_selected_player(), 1, 4});
+        network.trigger_script_event(1 << network.get_selected_player(), {SKYDIVING_ALL_JUMPS_GOLD, network.get_selected_player(), 1, 1});
+        script:sleep(500);
+        if i == 10 then
+            SCEdrop_function(6, 2)
+            SCEdrop_function(2, 2)
+            SCEdrop_function(4, 4)
+            SCEdrop_function(5, 1)
+            SCEdrop_function(10, 10)
+            SCEdrop_function(8, 10)
+            SCEdrop_function(3, 10)
+            SCEdrop_function(1, 10)
+            SCEdrop_function(19, 5)
+            SCEdrop_function(16, 25)
+            SCEdrop_function(17, 1)
+            script:sleep(2000);
+            gui.show_message(LuaName, "Big Unlock Completed for: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. "\nMethod: Given All TSE's and Skydives");
+        end
+    end
+    end)
+end);
+PlayersTab:add_separator();
+PlayersTab:add_text("More TSE's");
+PlayersTab:add_separator();
+PlayersTab:add_button("Complete Skydives", function()
+    script.run_in_fiber(function(script)
+        --gui.show_message(LuaName, "Unlocking Skydives: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. "\nInfo: This will give RP and Money");
+        network.trigger_script_event(1 << network.get_selected_player(), {SKYDIVING_JUMP_COMPLETED, network.get_selected_player(), 1, 1, 2000, 1});
+    end)
+end);
+PlayersTab:add_sameline();
+PlayersTab:add_button("Complete Skydives 2 ", function()
+    script.run_in_fiber(function(script)
+        gui.show_message(LuaName, "Skydives Set to gold for: " .. PLAYER.GET_PLAYER_NAME(network.get_selected_player()) .. "\nInfo: This will give RP and Money");
+        network.trigger_script_event(1 << network.get_selected_player(), {SKYDIVING_ALL_JUMPS_GOLD, network.get_selected_player(), 1, 1});
+    end)
+end);
+
+PlayersTab:add_button("Fake Vehicle Destroyed", function()
+    script.run_in_fiber(function(script)
+        network.trigger_script_event(1 << network.get_selected_player(), {CAR_INSURANCE, network.get_selected_player(), 1, 999999999});
+    end)
+end);
+PlayersTab:add_sameline();
+PlayersTab:add_button("Vehicle Kick", function()
+    script.run_in_fiber(function(script)
+        network.trigger_script_event(1 << network.get_selected_player(), {LEAVE_VEHICLE, network.get_selected_player()});
+    end)
+end);
+PlayersTab:add_button("Force Random Mission", function()
+    script.run_in_fiber(function(script)
+        network.trigger_script_event(1 << network.get_selected_player(), {BOSS_SHOULD_LAUNCH_WVM, network.get_selected_player(), 1, math.random(0, 7)});
+    end)
+end);
 PlayersTab:add_separator();
 PlayersTab:add_text("Toxic/Griefing");
 PlayersTab:add_button("Fragment Crash", function()
@@ -347,7 +427,9 @@ PlayersTab:add_button("Rage Shoot", function()
         ShootAt()
         end)
 end);
+
 PlayersTab:add_sameline();
+
 local checkbox = PlayersTab:add_checkbox("Rage Shoot Loop")
 script.register_looped("RageShoot", function(script)
     script:yield()
@@ -362,11 +444,63 @@ PlayersTab:add_button("Drop Vehicle on Player", function()
         DropVehicleOnPlayer("adder")
         end)
 end);
+PlayersTab:add_sameline();
+PlayersTab:add_button("Fling Vehicle", function()
+    script.run_in_fiber(function(script)
+        FlingVehicle()
+        end)
+end);
+PlayersTab:add_separator();
+PlayersTab:add_text("Sound Spam");
+PlayersTab:add_separator();
+local SPMApartmentInv = PlayersTab:add_checkbox("Spam Apartment Invite")
+script.register_looped("SPMApartmentInv", function(script)
+    script:yield()
+    if SPMApartmentInv:is_enabled() then
+        network.trigger_script_event(1 << network.get_selected_player(), {INVITE_TO_APARTMENT, network.get_selected_player(), 0, 0});
+        script:sleep(1);
+    end
+end)
+PlayersTab:add_sameline();
+local SPMYachtInv = PlayersTab:add_checkbox("Spam Yacht Invite")
+script.register_looped("SPMYachtInv", function(script)
+    script:yield()
+    if SPMYachtInv:is_enabled() then
+        network.trigger_script_event(1 << network.get_selected_player(), {INVITE_TO_APARTMENT, network.get_selected_player(), 0, 1});
+        script:sleep(1);
+    end
+end)
+local SPMOfficeInv = PlayersTab:add_checkbox("Spam Office Invite")
+script.register_looped("SPMOfficeInv", function(script)
+    script:yield()
+    if SPMOfficeInv:is_enabled() then
+        network.trigger_script_event(1 << network.get_selected_player(), {INVITE_TO_APARTMENT, network.get_selected_player(), 0, 2});
+        script:sleep(1);
+    end
+end)
+PlayersTab:add_sameline();
+local SPMErrorInv = PlayersTab:add_checkbox("Spam Error!")
+script.register_looped("SPMErrorInv", function(script)
+    script:yield()
+    if SPMErrorInv:is_enabled() then
+        network.trigger_script_event(1 << network.get_selected_player(), {CREATE_FMC_INVITE, network.get_selected_player(), 1, 4});
+        script:sleep(1);
+    end
+end)
+PlayersTab:add_sameline();
+local SPMtxtInv = PlayersTab:add_checkbox("Spam SMS!")
+script.register_looped("SPMtxtInv", function(script)
+    script:yield()
+    if SPMtxtInv:is_enabled() then
+        network.trigger_script_event(1 << network.get_selected_player(), {SEND_BASIC_TEXT, network.get_selected_player(), 1, 2});
+        script:sleep(1);
+    end
+end)
 
 PlayersTab:add_separator();
 PlayersTab:add_text("Friendly");
 PlayersTab:add_separator();
-PlayersTab:add_button("Fix Vehicle", function()
+PlayersTab:add_button("Fix Vehicle", function() 
     script.run_in_fiber(function(script)
         local player_id = PLAYER.GET_PLAYER_PED(network.get_selected_player());
         if PED.IS_PED_IN_ANY_VEHICLE(player_id, true) then
@@ -382,9 +516,42 @@ PlayersTab:add_button("Fix Vehicle", function()
 end);
 
 AllPlayers:add_separator();
+AllPlayers:add_text("TSE's All Players");
+AllPlayers:add_separator();
+local checkbox = AllPlayers:add_checkbox("Spam SMS!")
+script.register_looped("Spam SMS! ALL", function(script)
+    script:yield()
+    if checkbox:is_enabled() then
+        for i = 0, 32 do
+            if (i ~= localPlayerId) then
+                local player_id = i;
+                network.trigger_script_event(1 << network.get_selected_player(), {SEND_BASIC_TEXT, network.get_selected_player(), 1, 2});
+                script:sleep(100);
+            end
+    end
+end
+end)
+AllPlayers:add_sameline()
+local checkbox = AllPlayers:add_checkbox("Fake Vehicle Destroy")
+script.register_looped("Fake Vehicle Destroy ALL", function(script)
+    script:yield()
+    if checkbox:is_enabled() then
+        for i = 0, 32 do
+            if (i ~= localPlayerId) then
+                local player_id = i;
+                network.trigger_script_event(1 << player_id, {CAR_INSURANCE, player_id, 1, math.random(-999999999, 999999999)});
+                script:sleep(100);
+            end
+    end
+end
+end)
+
+AllPlayers:add_separator();
 AllPlayers:add_text("Settings");
 IncludeSelfALL = AllPlayers:add_checkbox("Include Self")
 AllPlayers:add_separator();
+
+
 local checkbox = AllPlayers:add_checkbox("Explode All (Anonymous)")
 script.register_looped("Explode All", function(script)
     script:yield()
