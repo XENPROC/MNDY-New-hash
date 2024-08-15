@@ -5,7 +5,7 @@ TargetID = network.get_selected_player()
 RPDropTime = 500; 
 MoneyDropTime = 800; 
 SCEWait = 800;
-MNYDQuckCashTime = 800;
+MNYDQuckCashTime = 300;
 TransferBank2 = false
 TransferBank = 0
 Statamount = 0
@@ -28,11 +28,11 @@ gui.show_message("NewWay", LuaName.." Loaded")
     MNDYTeleports = gui.get_tab("MNDY Teleports")
     StatisticsMNDY = gui.get_tab("MNDY Stats Editor")
     MNDYPvP = gui.get_tab("MNDY PvP")
-    recoveryTab2 = gui.get_tab("MNDY Recovery")
-    NightClubMNDY = gui.get_tab("MNDY NightClub")
+    recoveryTab2 = gui.get_tab("GUI_TAB_RECOVERY")
+    NightClubMNDY = gui.get_tab("GUI_TAB_BUSINESS")
     MenuImGui = gui.get_tab("MNDY Misc")
     AllPlayers = gui.get_tab("MNDY All Players")
-    MNDYDebug = gui.get_tab("MNDY Debug")
+    MNDYDebug = gui.get_tab("GUI_TAB_SETTINGS")
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
  --==MNDY==--

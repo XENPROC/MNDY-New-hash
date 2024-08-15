@@ -676,11 +676,11 @@ script.register_looped("Speedy Vehicle", function(script)
                 while not STREAMING.HAS_MODEL_LOADED(model) do
                     script:yield();
                 end
-                local obj = OBJECT.CREATE_OBJECT(model, pos.x, pos.y, pos.z, true, false, false);
-                ENTITY.SET_ENTITY_HEADING(obj, ENTITY.GET_ENTITY_HEADING(player_id) - 90);
+                local object = OBJECT.CREATE_OBJECT(model, pos.x, pos.y, pos.z, true, false, false)
+                ENTITY.SET_ENTITY_HEADING(object, ENTITY.GET_ENTITY_HEADING(player_id) - 90);
                 script:sleep(1);
-                if ENTITY.DOES_ENTITY_EXIST(obj) then
-                    OBJECT.DELETE_OBJECT(obj);
+                if ENTITY.DOES_ENTITY_EXIST(object) then
+                    OBJECT.DELETE_OBJECT(object);
                 end
             end
         end
@@ -702,11 +702,11 @@ script.register_looped("Slow Vehicle", function(script)
                 while not STREAMING.HAS_MODEL_LOADED(model) do
                     script:yield();
                 end
-                local obj = OBJECT.CREATE_OBJECT(model, pos.x, pos.y, pos.z, true, false, false);
-                ENTITY.SET_ENTITY_HEADING(obj, ENTITY.GET_ENTITY_HEADING(player_id) - 90);
+                local object = OBJECT.CREATE_OBJECT(model, pos.x, pos.y, pos.z, true, false, false)
+                ENTITY.SET_ENTITY_HEADING(object, ENTITY.GET_ENTITY_HEADING(player_id) - 90);
                 script:sleep(1);
-                if ENTITY.DOES_ENTITY_EXIST(obj) then
-                    OBJECT.DELETE_OBJECT(obj);
+                if ENTITY.DOES_ENTITY_EXIST(object) then
+                    OBJECT.DELETE_OBJECT(object);
                 end
             end
         end
@@ -737,6 +737,7 @@ AllPlayers:add_button("Mount Chiliad", function()
     ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()), 501.403, 5598.647, 796.137, false, false, true,
         true);
 end);
+
 
 MNDYPvP:add_separator();
 MNDYPvP:add_text("Aim Assistance");
@@ -790,20 +791,22 @@ local checkbox = MNDYPvP:add_checkbox("Aimbot")
 script.register_looped("Draw Lines", function(script)
     if checkbox:is_enabled() then
         for i = 0, 32 do
-            if (i ~= localPlayerId) then
+            Target = PLAYER.GET_PLAYER_PED(i)
+            if (Target ~= PLAYER.PLAYER_PED_ID()) then
+                local player_id = i;
                         if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) then
-                            local TargetPed = PLAYER.GET_PLAYER_PED(i);
+                            local TargetPed = PLAYER.GET_PLAYER_PED(player_id);
                             local TargetPos = ENTITY.GET_ENTITY_COORDS(TargetPed)
                             local Exist = ENTITY.DOES_ENTITY_EXIST(TargetPed)
                             local Dead = PLAYER.IS_PLAYER_DEAD(TargetPed)
                 
                             if Exist and not Dead then
                                 local OnScreen, ScreenX, ScreenY = GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(TargetPos.x, TargetPos.y, TargetPos.z, 0)
-                                if ENTITY.IS_ENTITY_VISIBLE(TargetPed) then
-                                    if OnScreen then
-                                        local TargetCoords = PED.GET_PED_BONE_COORDS(TargetPed, 0, 0, 0, 0)
+                                if ENTITY.IS_ENTITY_VISIBLE(TargetPed) and OnScreen then
+                                    if ENTITY.HAS_ENTITY_CLEAR_LOS_TO_ENTITY(YourselfPED, TargetPed, 17) then
+                                        local TargetCoords = PED.GET_PED_BONE_COORDS(TargetPed, 31086, 0, 0, 0)
                                         PED.SET_PED_SHOOTS_AT_COORD(PLAYER.PLAYER_PED_ID(), TargetCoords.x, TargetCoords.y, TargetCoords.z, 1)
-                            end
+                                    end
                         end
                     end
                 end
@@ -837,14 +840,14 @@ script.register_looped("Draw Lines", function(script)
         end
     end
 end);
-local checkbox = MNDYPvP:add_checkbox("Draw Box")
+Esp = MNDYPvP:add_checkbox("Draw Box")
 MNDYPvP:add_sameline();
 local Healthbox = MNDYPvP:add_checkbox("Health")
 MNDYPvP:add_sameline();
 local Armourbox = MNDYPvP:add_checkbox("Armour")
 script.register_looped("Draw Box", function(script)
     if NETWORK.NETWORK_IS_IN_SESSION() == true then
-        if checkbox:is_enabled() then
+        if Esp:is_enabled() then
             Camcoords = CAM.GET_GAMEPLAY_CAM_COORD()
             CAM.RENDER_SCRIPT_CAMS(false, false, 0, true)
             for i = 0, 32 do
@@ -967,6 +970,87 @@ MNDYPvP:add_imgui(function()
 end
 end
 end)
+end)
+
+MNDYPvP:add_separator();
+MNDYPvP:add_text("Crosshair");
+MNDYPvP:add_sameline();
+Showatall = MNDYPvP:add_checkbox("Show at all times")
+MNDYPvP:add_sameline();
+local checkbox = MNDYPvP:add_checkbox("Hide Dot")
+script.register_looped("Hide Dot", function(script)
+    if checkbox:is_enabled() then
+        HUD.HIDE_HUD_COMPONENT_THIS_FRAME(14)
+    end
+end)
+MNDYPvP:add_separator();
+
+
+
+PlusCrossHair = MNDYPvP:add_checkbox("Crosshair (+)")
+script.register_looped("Crosshair", function(script)
+    if PlusCrossHair:is_enabled() then
+        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
+            DrawText('+', 0.4960, 0.481, 0.0, 0.4)
+        elseif Showatall:is_enabled() then
+            DrawText('+', 0.4960, 0.481, 0.0, 0.4)
+        end
+    end
+end)
+MNDYPvP:add_sameline();
+local checkbox = MNDYPvP:add_checkbox("Crosshair (Square)")
+script.register_looped("Crosshair2", function(script)
+    if checkbox:is_enabled() then
+        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
+            DrawText('☐', 0.4972, 0.491, 0.2, 0.2)
+        elseif Showatall:is_enabled() then
+            DrawText('☐', 0.4972, 0.491, 0.2, 0.2)
+        end
+    end
+end)
+local checkbox = MNDYPvP:add_checkbox("Crosshair ({ })")
+script.register_looped("Crosshair3", function(script)
+    if checkbox:is_enabled() then
+        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
+            DrawText("{ }", 0.4964, 0.491, 0.2, 0.2)
+        elseif Showatall:is_enabled() then
+            DrawText('{ }', 0.4964, 0.491, 0.2, 0.2)
+        end
+    end
+end)
+MNDYPvP:add_sameline();
+local checkbox = MNDYPvP:add_checkbox("Crosshair (O)")
+script.register_looped("CrosshairO", function(script)
+    if checkbox:is_enabled() then
+        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
+            DrawText("O", 0.4964, 0.491, 0.2, 0.2)
+        elseif Showatall:is_enabled() then
+            DrawText('O', 0.4964, 0.491, 0.2, 0.2)
+        end
+    end
+end)
+
+local checkbox = MNDYPvP:add_checkbox("Weapon Controller (AIM AT ENTITY!)")
+script.register_looped("WeaponController", function(script)
+    if checkbox:is_enabled() then
+        local IsFound, Object = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER.PLAYER_ID())
+        entityCoord = ENTITY.GET_ENTITY_COORDS(Object, false)
+        if IsFound then
+            GRAPHICS.DRAW_MARKER_SPHERE(entityCoord.x, entityCoord.y, entityCoord.z, 1, 0, 255, 0, 0.3)
+            DrawText("Aiming At: " .. ENTITY.GET_ENTITY_MODEL(Object), 0.4738, 0.505, 0.2, 0.2)
+            DrawText("Press E to delete", 0.4798, 0.517, 0.2, 0.2)
+            DrawText("Press Q to Fling", 0.4798, 0.529, 0.2, 0.2)
+            DrawText("X:  " .. entityCoord.x .. " Y:  " .. entityCoord.y .. "Z:  " .. entityCoord.z .. " ", 0.4200, 0.539,
+                0.2, 0.2)
+            if PAD.IS_CONTROL_JUST_PRESSED(0, 38) then
+                DeleteEntity(Object)
+            end
+            if PAD.IS_CONTROL_JUST_PRESSED(0, 52) then
+                ForceControl(Object);
+                ENTITY.SET_ENTITY_VELOCITY(Object, math.random(-180, 180), math.random(-180, 180), math.random(-180, 180));
+            end
+        end
+    end
 end)
 
 
@@ -1227,110 +1311,6 @@ MenuImGui:add_imgui(function()
     end
     helpmarker(false, "Removes Cooldown to instantly Fire again")
 end)
-MenuImGui:add_separator();
-MenuImGui:add_text("Computers");
-MenuImGui:add_separator();
-MenuImGui:add_button("Nightclub", function()
-    script.run_in_fiber(function (script)
-        run_script("appBusinessHub", 1424)
-    end)
-end)
-MenuImGui:add_sameline();
-MenuImGui:add_button("Bail Office", function()
-    script.run_in_fiber(function (script)
-        script:sleep(600)
-        run_script("appBailOffice", 4592)
-    end)
-end)
-
-MenuImGui:add_sameline();
-MenuImGui:add_button("Master Control Terminal", function()
-    script.run_in_fiber(function (script)
-        run_script("appArcadeBusinessHub", 1424)
-    end)
-end)
-
-MenuImGui:add_separator();
-MenuImGui:add_text("Crosshair");
-MenuImGui:add_sameline();
-Showatall = MenuImGui:add_checkbox("Show at all times")
-MenuImGui:add_sameline();
-local checkbox = MenuImGui:add_checkbox("Hide Dot")
-script.register_looped("Hide Dot", function(script)
-    if checkbox:is_enabled() then
-        HUD.HIDE_HUD_COMPONENT_THIS_FRAME(14)
-    end
-end)
-MenuImGui:add_separator();
-
-
-
-local checkbox = MenuImGui:add_checkbox("Crosshair (+)")
-script.register_looped("Crosshair", function(script)
-    if checkbox:is_enabled() then
-        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
-            DrawText('+', 0.4960, 0.481, 0.0, 0.4)
-        elseif Showatall:is_enabled() then
-            DrawText('+', 0.4960, 0.481, 0.0, 0.4)
-        end
-    end
-end)
-MenuImGui:add_sameline();
-local checkbox = MenuImGui:add_checkbox("Crosshair (Square)")
-script.register_looped("Crosshair2", function(script)
-    if checkbox:is_enabled() then
-        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
-            DrawText('☐', 0.4972, 0.491, 0.2, 0.2)
-        elseif Showatall:is_enabled() then
-            DrawText('☐', 0.4972, 0.491, 0.2, 0.2)
-        end
-    end
-end)
-local checkbox = MenuImGui:add_checkbox("Crosshair ({ })")
-script.register_looped("Crosshair3", function(script)
-    if checkbox:is_enabled() then
-        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
-            DrawText("{ }", 0.4964, 0.491, 0.2, 0.2)
-        elseif Showatall:is_enabled() then
-            DrawText('{ }', 0.4964, 0.491, 0.2, 0.2)
-        end
-    end
-end)
-MenuImGui:add_sameline();
-local checkbox = MenuImGui:add_checkbox("Crosshair (O)")
-script.register_looped("CrosshairO", function(script)
-    if checkbox:is_enabled() then
-        if PLAYER.IS_PLAYER_FREE_AIMING(Yourself) and not Showatall:is_enabled() then
-            DrawText("O", 0.4964, 0.491, 0.2, 0.2)
-        elseif Showatall:is_enabled() then
-            DrawText('O', 0.4964, 0.491, 0.2, 0.2)
-        end
-    end
-end)
-
-local checkbox = MenuImGui:add_checkbox("Weapon Controller (AIM AT ENTITY!)")
-script.register_looped("WeaponController", function(script)
-    if checkbox:is_enabled() then
-        local IsFound, Object = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER.PLAYER_ID())
-        entityCoord = ENTITY.GET_ENTITY_COORDS(Object, false)
-        if IsFound then
-            GRAPHICS.DRAW_MARKER_SPHERE(entityCoord.x, entityCoord.y, entityCoord.z, 1, 0, 255, 0, 0.3)
-            DrawText("Aiming At: " .. ENTITY.GET_ENTITY_MODEL(Object), 0.4738, 0.505, 0.2, 0.2)
-            DrawText("Press E to delete", 0.4798, 0.517, 0.2, 0.2)
-            DrawText("Press Q to Fling", 0.4798, 0.529, 0.2, 0.2)
-            DrawText("X:  " .. entityCoord.x .. " Y:  " .. entityCoord.y .. "Z:  " .. entityCoord.z .. " ", 0.4200, 0.539,
-                0.2, 0.2)
-            if PAD.IS_CONTROL_JUST_PRESSED(0, 38) then
-                DeleteEntity(Object)
-            end
-            if PAD.IS_CONTROL_JUST_PRESSED(0, 52) then
-                ForceControl(Object);
-                ENTITY.SET_ENTITY_VELOCITY(Object, math.random(-180, 180), math.random(-180, 180), math.random(-180, 180));
-            end
-        end
-    end
-end)
-
 
 SafeRefill = NightClubMNDY:add_checkbox("Auto Refil Safe")
 script.register_looped("Auto Refill Safe", function(script)
@@ -1387,6 +1367,39 @@ NightClubMNDY:add_imgui(function()
     end
 end)
 
+NightClubMNDY:add_separator();
+NightClubMNDY:add_text("Computers");
+NightClubMNDY:add_separator();
+NightClubMNDY:add_button("Nightclub", function()
+    script.run_in_fiber(function (script)
+        run_script("appBusinessHub", 1424)
+    end)
+end)
+NightClubMNDY:add_sameline();
+NightClubMNDY:add_button("Bail Office", function()
+    script.run_in_fiber(function (script)
+        script:sleep(600)
+        run_script("appBailOffice", 4592)
+    end)
+end)
+
+NightClubMNDY:add_sameline();
+NightClubMNDY:add_button("Master Control Terminal", function()
+    script.run_in_fiber(function (script)
+        run_script("appArcadeBusinessHub", 1424)
+    end)
+end)
+
+NightClubMNDY:add_separator();
+NightClubMNDY:add_text("Warehouses");
+NightClubMNDY:add_separator();
+NightClubMNDY:add_button("Fill All Warehouses", function()
+    script.run_in_fiber(function (script)
+        for i = 1, 7 do
+        globals.set_int(1663174 + i, 1)
+        end
+    end)
+end)
 
 recoveryTab2:add_text("ONLY YOU ARE RESPONSABLE FOR USING THESE OPTIONS!");
 local MNYDMoney = {
@@ -1536,9 +1549,42 @@ function set_daily_collectibles_state(state) -- Credit ShinyWasabi
 script.register_looped("tick", function(script)
 if DebugInfo then
     DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ MNDY Version: 1.69", 0.28, 0.00, 0.0, 0.2000)
-    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 22/07/24 ", 0.28, 0.012, 0.0, 0.2000)
+    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 15/08/24 ", 0.28, 0.012, 0.0, 0.2000)
 end
     end)
+
+
+    script.register_looped("Hotkeys", function(script)
+        if NETWORK.NETWORK_IS_SESSION_STARTED() then
+            if PAD.IS_CONTROL_JUST_RELEASED(0, 166) then--F5
+                if NETWORK.NETWORK_IS_SESSION_STARTED() then
+                iconNotification("CHAR_PAIGE", "CHAR_PAIGE", true, 7, LuaName, "Forcing Script Host");
+                script:sleep(3000);
+                network.force_script_host("freemode")
+                network.force_script_host("main")
+                log.debug("YOU FORCED HOST")
+                iconNotification("CHAR_PAIGE", "CHAR_PAIGE", true, 7, LuaName, "Current Script Host: " ..ScriptHostName());
+            else
+                gui.show_message(LuaName, "You are not in online")
+            end
+        end
+            if PAD.IS_CONTROL_JUST_PRESSED(0, 167) then--F6
+                Esp:set_enabled(true)
+                Healthbox:set_enabled(true)
+                Armourbox:set_enabled(true)
+                Triggerbot:set_enabled(true)
+                PlusCrossHair:set_enabled(true)
+                Showatall:set_enabled(true)
+                selected_Triggermode = 1
+                InfinateRoll = true
+                InfinateRollChanged = true
+                gui.show_message(LuaName, "Loaded PVP settings")
+            end
+            
+            return;
+    
+        end
+    end);
 ------=========================================================================------
 ------===============================Credits===================================------
 ------=========================================================================------
