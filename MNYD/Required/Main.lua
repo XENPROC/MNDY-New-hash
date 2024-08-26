@@ -1263,33 +1263,6 @@ MenuImGui:add_button("0% Mental State", function()
 end)
 end);
 MenuImGui:add_sameline();
-MenuImGui:add_button("Add Bad Sport", function()
-    script.run_in_fiber(function(script)
-        gui.show_message(LuaName, "BadSport Added, Changing Session");
-        script:sleep(1000);
-        stats.set_int("MPPLY_BADSPORT_MESSAGE", 1)
-        stats.set_int("MPPLY_BADSPORT_MESSAGE", 1)
-        stats.set_float("MPPLY_OVERALL_BADSPORT", 60000)
-        stats.set_bool("MPPLY_CHAR_IS_BADSPORT", true)
-        globals.set_int(1574589, 1)
-        script:sleep(300);
-        globals.set_int(1574589, 0)
-end)
-end);
-MenuImGui:add_sameline();
-MenuImGui:add_button("Remove Bad Sport", function()
-    script.run_in_fiber(function(script)
-        gui.show_message(LuaName, "BadSport Removed, Changing Session");
-        script:sleep(1000);
-        stats.set_int("MPPLY_BADSPORT_MESSAGE", 0)
-        stats.set_int("MPPLY_BADSPORT_MESSAGE", 0)
-        stats.set_float("MPPLY_OVERALL_BADSPORT", 0)
-        stats.set_bool("MPPLY_CHAR_IS_BADSPORT", false)
-        globals.set_int(1574589, 1)
-        script:sleep(300);
-        globals.set_int(1574589, 0) 
-end)
-end);
 MenuImGui:add_button("Give 9999x Snacks", function()
     script.run_in_fiber(function(script)
         gui.show_message(LuaName, "Snacks given");
@@ -1310,6 +1283,88 @@ MenuImGui:add_imgui(function()
         iconNotification("CHAR_LESTER", "CHAR_LESTER", true, 1, LuaName, "Cooldown Removed");
     end
     helpmarker(false, "Removes Cooldown to instantly Fire again")
+end)
+
+MenuImGui:add_separator()
+
+MenuImGui:add_text("Bad Sport!")
+
+BadSportCombo = 0
+MenuImGui:add_imgui(function()
+	ImGui.PushItemWidth(140)
+	BadSportCombo = ImGui.Combo("##BadSport", BadSportCombo, { "Remove", "Add" }, 2)
+end)
+
+local function BadSport(State, Overall, Bool)
+	script.run_in_fiber(function(script)
+		gui.show_message("Bad Sport!", "Awaiting Session Change")
+		script:sleep(1000)
+		stats.set_int("MPPLY_BADSPORT_MESSAGE", State)
+		stats.set_int("MPPLY_BADSPORT_MESSAGE", State)
+		stats.set_float("MPPLY_OVERALL_BADSPORT", Overall)
+		stats.set_bool("MPPLY_CHAR_IS_BADSPORT", Bool)
+		globals.set_int(1575035, 11)
+		globals.set_int(1574589, 1)
+		script:sleep(300)
+		globals.set_int(1574589, 0)
+	end)
+end
+
+MenuImGui:add_sameline()
+
+MenuImGui:add_button("Execute", function()
+	if BadSportCombo == 0 then
+		BadSport(0, 0, false) -- Removes Bad Sport
+	else
+		BadSport(1, 3000, true) -- Add's Bad Sport
+	end
+end)
+
+ReportsMNDY:add_imgui(function() --- Thanks to ulitmatemenu
+    ImGui.Text("Griefing: " ..stats.get_int("MPPLY_GRIEFING"))
+	ImGui.Text("Exploiting: " ..stats.get_int("MPPLY_EXPLOITS"))
+	ImGui.Text("Abusing Bugs: " ..stats.get_int("MPPLY_GAME_EXPLOITS"))
+	ImGui.Text("Annoying People In Text: " ..stats.get_int("MPPLY_TC_ANNOYINGME"))
+	ImGui.Text("Hate Speech In Voice: " ..stats.get_int("MPPLY_VC_HATE"))
+	ImGui.Text("Offensive Language: " ..stats.get_int("MPPLY_OFFENSIVE_LANGUAGE"))
+	ImGui.Text("Offensive Tagplate: " ..stats.get_int("MPPLY_OFFENSIVE_TAGPLATE"))
+	ImGui.Text("Offensive Content: " ..stats.get_int("MPPLY_OFFENSIVE_UGC"))
+	ImGui.Text("Bad Crew Name: " ..stats.get_int("MPPLY_BAD_CREW_NAME"))
+	ImGui.Text("Bad Crew Motto: " ..stats.get_int("MPPLY_BAD_CREW_MOTTO"))
+	ImGui.Text("Bad Crew Status: " ..stats.get_int("MPPLY_BAD_CREW_STATUS"))
+	ImGui.Text("Bad Crew Emblem: " ..stats.get_int("MPPLY_BAD_CREW_EMBLEM"))
+	ImGui.Separator()
+	ImGui.Text("Now onto your commends:")
+	ImGui.Separator()
+	ImGui.Text("Friendly: " ..stats.get_int("MPPLY_FRIENDLY"))
+	ImGui.Text("Helpful: " ..stats.get_int("MPPLY_HELPFUL"))
+end)
+ReportsMNDY:add_separator()
+
+ReportsMNDY:add_text("Report Manager")
+
+ReportManager = 0
+ReportHash = 0
+ReportAmount = 1
+ReportsMNDY:add_imgui(function()
+	ReportHashes = {"MPPLY_GRIEFING","MPPLY_EXPLOITS","MPPLY_GAME_EXPLOITS","MPPLY_TC_ANNOYINGME","MPPLY_TC_HATE","MPPLY_VC_ANNOYINGME","MPPLY_VC_HATE","MPPLY_OFFENSIVE_LANGUAGE","MPPLY_OFFENSIVE_TAGPLATE","MPPLY_OFFENSIVE_UGC","MPPLY_BAD_CREW_NAME","MPPLY_BAD_CREW_MOTTO","MPPLY_BAD_CREW_STATUS","MPPLY_BAD_CREW_EMBLEM","MPPLY_FRIENDLY","MPPLY_HELPFUL"}
+	ReportManager = ImGui.Combo("##ReportsMenu", ReportManager, { "Remove", "Add" }, 2)
+	ReportHash = ImGui.Combo("##ReportHash", ReportHash, ReportHashes, 16, 16)
+	ImGui.PushItemWidth(140)
+	ReportAmount, used = ImGui.SliderInt("##Amount", ReportAmount, 1, 10)
+
+    ImGui.SameLine()
+
+	UpdateReport = ImGui.Button("Execute");
+	if UpdateReport then
+		if ReportManager == 0 then
+			stats.set_int(joaat(ReportHashes[ReportHash + 1]), stats.get_int(ReportHashes[ReportHash + 1]) - ReportAmount)
+			gui.show_message("Reports Manager (Removed!)", "Modified Report: "..(ReportHashes[ReportHash + 1]).. "\nAmount: "..ReportAmount)
+		else
+			stats.set_int(joaat(ReportHashes[ReportHash + 1]), stats.get_int(ReportHashes[ReportHash + 1]) + ReportAmount)
+			gui.show_message("Reports Manager (Added!)", "Modified Report: "..(ReportHashes[ReportHash + 1]).. "\nAmount: "..ReportAmount)
+		end
+	end
 end)
 
 SafeRefill = NightClubMNDY:add_checkbox("Auto Refil Safe")
@@ -1549,7 +1604,7 @@ function set_daily_collectibles_state(state) -- Credit ShinyWasabi
 script.register_looped("tick", function(script)
 if DebugInfo then
     DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ MNDY Version: 1.69", 0.28, 0.00, 0.0, 0.2000)
-    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 15/08/24 ", 0.28, 0.012, 0.0, 0.2000)
+    DrawText("~HUD_COLOUR_DEGEN_GREEN~~h~ Build: 26/08/24 ", 0.28, 0.012, 0.0, 0.2000)
 end
     end)
 
@@ -1592,3 +1647,4 @@ end
 -- GSTX (gustavin)
 -- Recoil
 -- Gir489returns ( For bit sizes on computers)
+-- L7NEG
