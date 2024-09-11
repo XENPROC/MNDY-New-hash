@@ -12,6 +12,7 @@ Statamount = 0;
 Statamountfloat = 0;
 Selectedbool = 0;
 triggermode_names = {"Realistic","Unreal"};
+Stattrueorfalse = {"false","true"}
 selected_Triggermode = 0;
 Watermark_Featnames = {"MNYD","NewWayMenu.vip","NewWay"};
 Watermark_FeatnamesAmmount = 3;
@@ -227,6 +228,17 @@ function DeleteEntity(Entity)
 	ENTITY.SET_ENTITY_AS_NO_LONGER_NEEDED(Entity);
 	ENTITY.DELETE_ENTITY(Entity);
 end
+function DeleteObject(Object)
+    ENTITY.DETACH_ENTITY(Object, true, true)
+    ENTITY.SET_ENTITY_VISIBLE(Object, false, false)
+    NETWORK.NETWORK_SET_ENTITY_ONLY_EXISTS_FOR_PARTICIPANTS(Object, true)
+    ENTITY.SET_ENTITY_COORDS_NO_OFFSET(Object, 0.0, 0.0, -1000.0, false, false, false)
+    ENTITY.SET_ENTITY_COLLISION(Object, false, false)
+    ENTITY.SET_ENTITY_AS_MISSION_ENTITY(Object, true, true)
+    ENTITY.SET_ENTITY_AS_NO_LONGER_NEEDED(Object)
+    OBJECT.DELETE_OBJECT(Object)
+end
+
 function ScriptHostName()
 	return PLAYER.GET_PLAYER_NAME(NETWORK.NETWORK_GET_HOST_OF_SCRIPT("freemode", -1, 0));
 end
@@ -924,7 +936,12 @@ gui.add_imgui(function()
 						if FastRpUsed then
 							while FastRp do
 								script:sleep(0);
+								for i = 1,50 do
 								SCEdrop_function(4, 24)
+								SCEdrop_function(4, 24)
+								SCEdrop_function(4, 24)
+								SCEdrop_function(4, 24)
+							end
 							end
 						end
 					end);
@@ -935,7 +952,7 @@ gui.add_imgui(function()
 					ImGui.Indent(50);
 					if ImGui.Button("Big Money Unlock") then
 						script.run_in_fiber(function(script)
-							for i = 1, 24 do
+							for i = 1,30 do
 							network.trigger_script_event(1 << network.get_selected_player(), {SKYDIVING_JUMP_COMPLETED, network.get_selected_player(), 1, 1, 2000, 1});
 							network.trigger_script_event(1 << network.get_selected_player(), {SKYDIVING_ALL_JUMPS_COMPLETED, network.get_selected_player(), 1, 4});
 							network.trigger_script_event(1 << network.get_selected_player(), {SKYDIVING_ALL_JUMPS_GOLD, network.get_selected_player(), 1, 1});
