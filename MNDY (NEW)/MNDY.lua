@@ -815,20 +815,21 @@ gui.add_imgui(function()
 			end
 			if ImGui.BeginTabItem("Recovery") then
 				ImGui.Spacing()
-				if ImGui.BeginChild("MoneyLoops", 300, 50) then
-					ImGui.Indent(125);
+				if ImGui.BeginChild("MoneyLoops", 400, 50) then
+					ImGui.Indent(150);
 					ImGui.Text("Loops");
-					ImGui.Unindent(125);
+					ImGui.Unindent(150);
 					ImGui.Separator();
-					ImGui.PushItemWidth(130);
-					ImGui.Indent(4);
+					ImGui.PushItemWidth(250);
+					ImGui.Indent(5);
 
 					GiveCasinoChips, GiveCasinoChipsUsed = ImGui.Checkbox("5K Chips", GiveCasinoChips);
 					ImGui.SameLine()
-					FiftyK, FiftyKUsed = ImGui.Checkbox("50K Loop", FiftyK);
+					FiftyK, FiftyKUsed = ImGui.Checkbox("50K Loop ", FiftyK);
 					ImGui.SameLine()
-					oneeightK, oneeightKUsed = ImGui.Checkbox("180K Loop", oneeightK);
-
+					hunderedK, hunderedKUsed = ImGui.Checkbox("100K Loop ", hunderedK);	
+					ImGui.SameLine()
+					oneeightK, oneeightKUsed = ImGui.Checkbox("180K Loop ", oneeightK);
 					script.run_in_fiber(function(script)
 						if GiveCasinoChipsUsed then
 							while GiveCasinoChips do
@@ -846,6 +847,16 @@ gui.add_imgui(function()
 							end
 						end
 					end);
+					
+					script.run_in_fiber(function(script)
+						if hunderedKUsed then
+							while hunderedK do
+								script:sleep(500);
+								MoneyTransactions(0x68341DC5, 100000)
+							end
+						end
+					end);
+
 
 					script.run_in_fiber(function(script)
 						if oneeightKUsed then
@@ -1420,3 +1431,4 @@ AllPlayers:add_button("Mount Chiliad", function()
     ENTITY.SET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_ID()), 501.403, 5598.647, 796.137, false, false, true,
         true);
 end);
+
